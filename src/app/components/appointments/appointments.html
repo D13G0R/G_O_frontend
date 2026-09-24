@@ -1,0 +1,23 @@
+
+<main class="appointments-page">
+    <h1>Personajes</h1>
+    <p>{{ appointmentsService.appointments().length }} resultados cargados</p>
+
+    @if (loading()) {
+        <p>Cargando personajes...</p>
+    } @else if (errorMessage()) {
+        <p>{{ errorMessage() }}</p>
+    } @else if (appointmentsService.appointments().length > 0) {
+        <ul>
+            @for (appointment of appointmentsService.appointments(); track appointment.id) {
+                <li>
+                    <strong>{{ appointment.name }}</strong>
+                    <span>{{ appointment.species }} · {{ appointment.status }}</span>
+                </li>
+            }
+        </ul>
+    } @else {
+        <p>No se encontraron personajes.</p>
+    }
+</main>
+

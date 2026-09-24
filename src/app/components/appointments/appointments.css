@@ -1,0 +1,29 @@
+.appointments-page {
+	padding: 6rem 2rem 2rem;
+	color: #191c1e;
+}
+
+.appointments-page h1 {
+	margin: 0;
+}
+
+.appointments-page ul {
+	display: grid;
+	gap: 0.75rem;
+	list-style: none;
+	margin: 2rem 0 0;
+	padding: 0;
+}
+
+.appointments-page li {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	padding: 1rem;
+	border: 1px solid #c3c6d7;
+	border-radius: 0.75rem;
+}
+
+.appointments-page span {
+	color: #434655;
+}
