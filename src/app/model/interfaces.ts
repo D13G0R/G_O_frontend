@@ -1,14 +1,20 @@
-export interface Character {
+export interface Appointment {
     id: number;
-    name: string;
-    status: string;
-    species: string;
-}
+    bussinessId: number;
+    sessionId: string;
+    customerPhone: string;
+    customerName: string;
+    applianceType: string;
+    problemDescription: string;
+    address: string;
+    appointmentDate: string;
+    appointmentTime: string;
+    status:string;
+    technicianId: number;
+    createdAt: string;
+    updateAt: string;
 
-export type CharactersResponse =
-    {
-        results: Character[]
-    };
+}
 
 export interface UserPayload {
     // 'Long' se traduce como 'number'. Es opcional (?) porque el backend lo genera automáticamente.
@@ -23,4 +29,13 @@ export interface LoginPayload {
 
     phoneNumber: string;
     password: string;
+}
+
+export interface AuthInformation {
+    
+    phoneNumberId : string;
+    businessId : number;
+    ownerName : string;
+    email : string;
+    businessName : string;
 }

@@ -1,36 +1,49 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { AppointmentsService } from './appointments.service';
+import { AuthService } from '../Auth/auth.service';
+import { ToastMessage } from '../../toast-message/toast-message';
 
 @Component({
   selector: 'app-appointments',
-  imports: [],
+  imports: [ ToastMessage ],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
 export class Appointments implements OnInit {
-  loading = signal(true);
-  errorMessage = signal('');
 
-  constructor(public appointmentsService: AppointmentsService) {}
+  businessId: number | null = null;
+
+  showModal: boolean = false;
+
+  errorAppointment: boolean = false;
+  errorMessageAppointment: string = "";
+  
+
+  constructor(public appointmentsService: AppointmentsService, private authService: AuthService) {}
 
   ngOnInit(): void {
-    this.getAppointments();
+    
+    this.businessId = this.authService.getBusinessId();
+
+    this.appointmentsService.getAppointments(this.businessId).subscribe({
+      next: (data) => {
+
+        this.appointmentsService.appointments.set(data);
+
+      }, error: (error) => {
+        this.errorAppointment = true;
+        this.errorMessageAppointment = "Ha ocurrido un error inesperado" + error;
+
+      }
+    })
+
   }
 
-  getAppointments() {
-    this.appointmentsService.getAppointments().subscribe({
-      next: (data) => {
-        this.appointmentsService.appointments.set(
-          Array.isArray(data) ? data : data.results,
-        );
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('No se pudieron cargar los personajes', error);
-        this.loading.set(false);
-        this.errorMessage.set('No se pudieron cargar los personajes.');
-      },
-    });
+  openModal(){
+    this.showModal = true;
+  }
+  closeModal(){
+    this.showModal = false;
   }
 
 }

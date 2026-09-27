@@ -4,10 +4,11 @@ import { RegisterService } from './register.service';
 import { RouterLink } from '@angular/router';
 import { UserPayload } from '../../model/interfaces';
 import { Router } from '@angular/router';
+import { ToastMessage } from '../../toast-message/toast-message';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [FormsModule, ReactiveFormsModule, RouterLink, ToastMessage],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })

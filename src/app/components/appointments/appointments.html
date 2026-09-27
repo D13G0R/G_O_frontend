@@ -1,23 +1,584 @@
 
-<main class="appointments-page">
-    <h1>Personajes</h1>
-    <p>{{ appointmentsService.appointments().length }} resultados cargados</p>
+<main class="min-h-screen bg-[#f7f9fb] text-[#191c1e]" class="appointments-page">
 
-    @if (loading()) {
-        <p>Cargando personajes...</p>
-    } @else if (errorMessage()) {
-        <p>{{ errorMessage() }}</p>
-    } @else if (appointmentsService.appointments().length > 0) {
-        <ul>
-            @for (appointment of appointmentsService.appointments(); track appointment.id) {
-                <li>
-                    <strong>{{ appointment.name }}</strong>
-                    <span>{{ appointment.species }} · {{ appointment.status }}</span>
-                </li>
-            }
-        </ul>
-    } @else {
-        <p>No se encontraron personajes.</p>
+  <!-- Side Navigation -->
+  <nav
+    class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-[#c3c6d7] py-[24px] px-[16px] z-50"
+  >
+
+    <!-- Logo -->
+    <div class="mb-[40px] flex items-center gap-[8px]">
+      <div
+        class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center text-white"
+      >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings: 'FILL' 1;"
+        >
+          engineering
+        </span>
+      </div>
+
+      <div>
+        <h1 class="text-[20px] font-bold text-[#191c1e] leading-tight">
+          ProService SaaS
+        </h1>
+        <p class="text-[12px] font-medium text-[#434655]">
+          Enterprise Tier
+        </p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex-1 space-y-[4px]">
+
+      <a
+        routerLink="/dashboard"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg"
+      >
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="text-[14px] font-semibold">Dashboard</span>
+      </a>
+
+      <a
+        routerLink="/appointments"
+        class="flex items-center gap-[16px] bg-[#8a4cfc] text-white rounded-lg px-[16px] py-[8px] translate-x-1"
+      >
+        <span
+          class="material-symbols-outlined"
+          style="font-variation-settings: 'FILL' 1;"
+        >
+          calendar_today
+        </span>
+        <span class="text-[14px] font-semibold">Appointments</span>
+      </a>
+
+      <a
+        href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg"
+      >
+        <span class="material-symbols-outlined">engineering</span>
+        <span class="text-[14px] font-semibold">Technicians</span>
+      </a>
+
+      <a
+        href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg"
+      >
+        <span class="material-symbols-outlined">settings</span>
+        <span class="text-[14px] font-semibold">Settings</span>
+      </a>
+
+    </div>
+
+    <!-- New Appointment -->
+    <button
+      type="button"
+      (click)="openModal()"
+      class="mt-[16px] mb-[40px] w-full bg-[#004ac6] py-[8px] rounded-xl text-white text-[14px] font-semibold flex items-center justify-center gap-[4px] hover:opacity-90 transition-opacity"
+    >
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Agendar Nueva Cita
+    </button>
+
+    <!-- Bottom navigation -->
+    <div class="border-t border-[#c3c6d7] pt-[16px] space-y-[4px]">
+
+      <a
+        href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors"
+      >
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-[14px] font-semibold">Help Center</span>
+      </a>
+
+      <button
+        type="button"
+        class="w-full flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors"
+      >
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-[14px] font-semibold">Log Out</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- Top Bar -->
+  <header
+    class="fixed top-0 right-0 left-64 h-16 bg-[#f7f9fb] border-b border-[#c3c6d7] flex justify-between items-center px-[32px] z-40"
+  >
+
+    <div class="flex items-center gap-[16px]">
+      <div class="flex items-center gap-[4px] text-[#434655] text-[12px] font-medium">
+        <span>Apps</span>
+
+        <span class="material-symbols-outlined text-[14px]">
+          chevron_right
+        </span>
+
+        <span class="text-[#004ac6] font-bold">
+          Appointments
+        </span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-[24px]">
+
+      <!-- Search -->
+      <div class="relative hidden lg:block">
+        <span
+          class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737686]"
+        >
+          search
+        </span>
+
+        <input
+          type="text"
+          placeholder="Search appointments..."
+          class="pl-10 pr-4 py-2 bg-[#eceef0] rounded-full border-none focus:ring-2 focus:ring-[#004ac6] w-64 text-[14px]"
+        />
+      </div>
+
+      <!-- Notifications -->
+      <button
+        type="button"
+        class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#e6e8ea] transition-colors text-[#434655]"
+      >
+        <span class="material-symbols-outlined">
+          notifications
+        </span>
+      </button>
+
+      <div class="h-8 w-[1px] bg-[#c3c6d7] mx-2"></div>
+
+      <!-- User -->
+      <div class="flex items-center gap-[8px]">
+        <div class="text-right hidden sm:block">
+          <p class="text-[14px] font-semibold text-[#191c1e]">
+            Alex Rivera
+          </p>
+
+          <p class="text-[12px] font-medium text-[#434655] uppercase tracking-wider">
+            Manager
+          </p>
+        </div>
+
+        <div
+          class="w-10 h-10 rounded-full border-2 border-[#e0e3e5] bg-[#dbe1ff] flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined text-[#004ac6]">
+            person
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main -->
+  <section class="ml-64 pt-24 px-[32px] pb-12">
+
+    <!-- Header -->
+    <div
+      class="flex flex-col md:flex-row md:items-end justify-between gap-[24px] mb-[40px]"
+    >
+
+      <div>
+        <h2 class="text-[32px] font-semibold text-[#191c1e] mb-[4px]">
+          Manage Appointments
+        </h2>
+
+        <p class="text-[16px] text-[#434655] max-w-2xl">
+          View, coordinate, and schedule upcoming service visits across your
+          entire technician network.
+        </p>
+      </div>
+
+      <!-- View selector -->
+      <div class="flex items-center gap-[16px]">
+        <div
+          class="flex bg-[#f2f4f6] p-1 rounded-xl border border-[#c3c6d7]"
+        >
+          <button
+            type="button"
+            class="px-[16px] py-1.5 bg-white shadow-sm rounded-lg text-[14px] text-[#004ac6] flex items-center gap-[4px]"
+          >
+            <span class="material-symbols-outlined text-[18px]">
+              grid_view
+            </span>
+            Cards
+          </button>
+
+          <button
+            type="button"
+            class="px-[16px] py-1.5 text-[14px] text-[#434655] flex items-center gap-[4px] hover:text-[#191c1e]"
+          >
+            <span class="material-symbols-outlined text-[18px]">
+              list
+            </span>
+            List
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filters -->
+    <div
+      class="bg-white rounded-2xl p-[16px] mb-[40px] flex flex-wrap items-center gap-[24px] shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]"
+    >
+
+      <!-- Date -->
+      <div class="flex flex-col gap-1">
+        <label class="text-[12px] text-[#434655] px-1">
+          Selected Date
+        </label>
+
+        <div class="relative">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#004ac6]"
+          >
+            calendar_month
+          </span>
+
+          <input
+            type="date"
+            class="pl-10 pr-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-48"
+          />
+        </div>
+      </div>
+
+      <!-- Technician -->
+      <div class="flex flex-col gap-1">
+        <label class="text-[12px] text-[#434655] px-1">
+          Technician
+        </label>
+
+        <select
+          class="pl-[16px] pr-[40px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-56"
+        >
+          <option>All Technicians</option>
+          <option>Marcus Aurelius</option>
+          <option>Sarah Jenkins</option>
+          <option>David Chen</option>
+        </select>
+      </div>
+
+      <!-- Status -->
+      <div class="flex flex-col gap-1">
+        <label class="text-[12px] text-[#434655] px-1">
+          Status
+        </label>
+
+        <div class="flex gap-[8px]">
+          <button
+            type="button"
+            class="px-[16px] py-2 bg-[#007d57]/10 text-[#006243] text-[14px] font-semibold rounded-xl border border-[#006243]/20"
+          >
+            Confirmed
+          </button>
+
+          <button
+            type="button"
+            class="px-[16px] py-2 bg-[#e6e8ea] text-[#434655] text-[14px] font-semibold rounded-xl border border-[#c3c6d7]"
+          >
+            Pending
+          </button>
+        </div>
+      </div>
+
+      <!-- Reset -->
+      <button
+        type="button"
+        class="ml-auto text-[#004ac6] text-[14px] font-bold flex items-center gap-[4px] hover:underline"
+      >
+        <span class="material-symbols-outlined">
+          filter_list
+        </span>
+        Reset Filters
+      </button>
+
+    </div>
+
+    <!-- Appointment Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[24px]">
+
+      <!-- Card 1 -->
+    
+      @for(appointment of this.appointmentsService.appointments(); track appointment.id){
+        
+      
+      <div
+        class="bg-white rounded-2xl p-[24px] flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]"
+      >
+
+        <div class="flex justify-between items-start mb-[16px]">
+          <div class="bg-[#004ac6]/5 p-2 rounded-xl text-[#004ac6] text-[20px] font-semibold">
+            {{appointment.appointmentTime}}
+          </div>
+
+          <span
+            class="px-[16px] py-1 bg-[#85f8c4] text-[#005137] text-[12px] rounded-full font-bold uppercase tracking-tight"
+          >
+            Confirmed
+          </span>
+        </div>
+
+        <h3 class="text-[20px] font-semibold text-[#191c1e] mb-1">
+          {{appointment.applianceType}}
+        </h3>
+
+        <p class="text-[14px] font-semibold text-[#434655] mb-[24px]">
+          Client: {{appointment.customerName}} {{appointment.customerPhone}}
+        </p>
+
+        <div
+          class="flex items-center gap-[16px] mt-auto pt-[16px] border-t border-[#c3c6d7]/50"
+        >
+          <div
+            class="w-10 h-10 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#004ac6]"
+          >
+            <span class="material-symbols-outlined">person</span>
+          </div>
+
+          <div>
+            <p class="text-[12px] text-[#434655]">
+              Technician
+            </p>
+
+            <p class="text-[14px] font-semibold text-[#191c1e]">
+              {{appointment.technicianId}}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="ml-auto w-8 h-8 rounded-full flex items-center justify-center text-[#c3c6d7] group-hover:text-[#004ac6] transition-colors"
+          >
+            <span class="material-symbols-outlined">
+              more_vert
+            </span>
+          </button>
+        </div>
+      </div>
     }
+      
+
+      <!-- Add Appointment -->
+      <button
+        type="button"
+        (click)="openModal()"
+        class="border-2 border-dashed border-[#c3c6d7] rounded-2xl p-[24px] flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#004ac6] hover:bg-[#004ac6]/5 transition-all group min-h-[220px]"
+      >
+
+        <div
+          class="w-12 h-12 rounded-full bg-[#eceef0] flex items-center justify-center text-[#c3c6d7] mb-[16px] group-hover:text-[#004ac6] group-hover:bg-[#004ac6]/10 transition-all"
+        >
+          <span class="material-symbols-outlined text-3xl">
+            add_circle
+          </span>
+        </div>
+
+        <h4 class="text-[20px] font-semibold text-[#434655] group-hover:text-[#004ac6]">
+          Add New Appointment
+        </h4>
+
+        <p class="text-[14px] text-[#737686] px-[16px] mt-2">
+          Fill the schedule and maximize your team's efficiency.
+        </p>
+
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- Modal -->
+  @if (showModal) {
+
+    <div class="fixed inset-0 z-[60]">
+
+      <!-- Overlay -->
+      <button
+        type="button"
+        (click)="closeModal()"
+        class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
+        aria-label="Close modal"
+      ></button>
+
+      <!-- Drawer -->
+      <div
+        class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col"
+      >
+
+        <!-- Header -->
+        <div
+          class="p-[24px] border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]"
+        >
+
+          <div>
+            <h3 class="text-[20px] font-semibold text-[#191c1e]">
+              Agendar Nueva Cita
+            </h3>
+
+            <p class="text-[12px] text-[#434655]">
+              Create a new service request
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[#eceef0] transition-colors"
+          >
+            <span class="material-symbols-outlined">
+              close
+            </span>
+          </button>
+
+        </div>
+
+        <!-- Form -->
+        <form class="flex-1 overflow-y-auto p-[24px] space-y-[24px]">
+
+          <div class="space-y-[8px]">
+            <label class="text-[14px] font-semibold text-[#191c1e] block">
+              Client Name
+            </label>
+
+            <input
+              type="text"
+              placeholder="e.g. Acme Corp"
+              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-[16px]">
+
+            <div class="space-y-[8px]">
+              <label class="text-[14px] font-semibold text-[#191c1e] block">
+                Date
+              </label>
+
+              <input
+                type="date"
+                class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]"
+              />
+            </div>
+
+            <div class="space-y-[8px]">
+              <label class="text-[14px] font-semibold text-[#191c1e] block">
+                Time
+              </label>
+
+              <input
+                type="time"
+                class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]"
+              />
+            </div>
+
+          </div>
+
+          <div class="space-y-[8px]">
+            <label class="text-[14px] font-semibold text-[#191c1e] block">
+              Service Type
+            </label>
+
+            <select
+              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]"
+            >
+              <option>HVAC Maintenance</option>
+              <option>Electrical Repair</option>
+              <option>Solar Installation</option>
+              <option>Plumbing Emergency</option>
+            </select>
+          </div>
+
+          <div class="space-y-[8px]">
+            <label class="text-[14px] font-semibold text-[#191c1e] block">
+              Assign Technician
+            </label>
+
+            <div class="flex flex-col gap-[8px]">
+
+              <button
+                type="button"
+                class="flex items-center gap-[16px] p-[8px] border border-[#c3c6d7] rounded-xl hover:border-[#004ac6] transition-colors text-left"
+              >
+                <div
+                  class="w-8 h-8 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#004ac6]"
+                >
+                  <span class="material-symbols-outlined text-[18px]">
+                    person
+                  </span>
+                </div>
+
+                <span class="text-[16px]">
+                  Marcus Aurelius (Available)
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="flex items-center gap-[16px] p-[8px] border border-[#c3c6d7] rounded-xl hover:border-[#004ac6] transition-colors text-left"
+              >
+                <div
+                  class="w-8 h-8 rounded-full bg-[#eaddff] flex items-center justify-center text-[#5a00c6]"
+                >
+                  <span class="material-symbols-outlined text-[18px]">
+                    person
+                  </span>
+                </div>
+
+                <span class="text-[16px]">
+                  David Chen (Available)
+                </span>
+              </button>
+
+            </div>
+          </div>
+
+          <div class="space-y-[8px]">
+            <label class="text-[14px] font-semibold text-[#191c1e] block">
+              Additional Notes
+            </label>
+
+            <textarea
+              rows="4"
+              placeholder="Enter specific details or customer requests..."
+              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]"
+            ></textarea>
+          </div>
+
+        </form>
+
+        <!-- Footer -->
+        <div
+          class="p-[24px] bg-[#f2f4f6] border-t border-[#c3c6d7] flex gap-[16px]"
+        >
+
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="flex-1 py-[8px] border border-[#c3c6d7] rounded-xl font-semibold hover:bg-[#eceef0] transition-colors"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            class="flex-[2] py-[8px] bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity"
+          >
+            Confirm Schedule
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+<app-toast-message [(error)]="errorAppointment" [(errorMessage)]="errorMessageAppointment"></app-toast-message>
 </main>
 
