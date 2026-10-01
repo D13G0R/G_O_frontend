@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { jwtDecode } from 'jwt-decode';
 import { AuthInformation } from '../../model/interfaces';
+import { TokenService } from "../token/token"
 
 @Injectable({
   providedIn: 'root',
@@ -8,13 +9,11 @@ import { AuthInformation } from '../../model/interfaces';
 
 export class AuthService {
 
-  getToken(): string | null {
-    return localStorage.getItem("token")
-  }
+  constructor (private tokenService: TokenService ){}
 
   // 2. Decodificar el token completo
   getUserData(): AuthInformation | null {
-    const token = this.getToken();
+    const token = this.tokenService.getToken();
     if (!token) return null;
 
     try {

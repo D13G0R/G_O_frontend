@@ -15,6 +15,19 @@ export interface Appointment {
     updateAt: string;
 
 }
+export interface AppointmentCreate {
+  businessId: number;
+  sessionId: string;
+  customerPhone: string;
+  customerName: string;
+  applianceType: string;
+  problemDescription: string;
+  address: string;
+  appointmentDate: string; // Formato "YYYY-MM-DD"
+  appointmentTime: string; // Formato "HH:mm:ss" o "HH:mm"
+  status: string;
+  technicianId: number;
+}
 
 export interface UserPayload {
     // 'Long' se traduce como 'number'. Es opcional (?) porque el backend lo genera automáticamente.
