@@ -39,4 +39,15 @@ export class AppointmentsService {
     return this.http.post<AppointmentCreate>(`${ this.URL_API }/create`, payload, { headers })
 
   }
+
+  updateAppointment(payload : Appointment): Observable<Appointment> {
+
+    const token = this.tokenService.getToken();
+
+    const headers= new HttpHeaders({
+      "Authorization": `Bearer ${token}`, 
+    })
+
+    return this.http.put<Appointment>(`${this.URL_API}/update/${payload.id}`, payload,  { headers });
+  }
 }

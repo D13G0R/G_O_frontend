@@ -29,6 +29,19 @@ export interface AppointmentCreate {
   technicianId: number;
 }
 
+export interface AppointmentUpdateInterface {
+    customer_phone : string;
+    customer_name: string;
+    applianceType: string;
+    problemDescription: string;
+    address: string;
+    appointmentDate: string;
+    appointmentTime: string;
+    status: string;
+    technicianId: number;
+
+}
+
 export interface UserPayload {
     // 'Long' se traduce como 'number'. Es opcional (?) porque el backend lo genera automáticamente.
     businessName: string;
