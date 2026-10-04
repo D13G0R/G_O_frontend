@@ -1,82 +1,7 @@
 <main class="min-h-screen bg-[#f7f9fb] text-[#191c1e]" class="appointments-page">
 
   <!-- Side Navigation -->
-  <nav
-    class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-[#c3c6d7] py-[24px] px-[16px] z-50">
-
-    <!-- Logo -->
-    <div class="mb-[40px] flex items-center gap-[8px]">
-      <div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center text-white">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
-          engineering
-        </span>
-      </div>
-
-      <div>
-        <h1 class="text-[20px] font-bold text-[#191c1e] leading-tight">
-          ProService SaaS
-        </h1>
-        <p class="text-[12px] font-medium text-[#434655]">
-          Enterprise Tier
-        </p>
-      </div>
-    </div>
-
-    <!-- Navigation -->
-    <div class="flex-1 space-y-[4px]">
-
-      <a routerLink="/dashboard"
-        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">dashboard</span>
-        <span class="text-[14px] font-semibold">Dashboard</span>
-      </a>
-
-      <a routerLink="/appointments"
-        class="flex items-center gap-[16px] bg-[#8a4cfc] text-white rounded-lg px-[16px] py-[8px] translate-x-1">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
-          calendar_today
-        </span>
-        <span class="text-[14px] font-semibold">Appointments</span>
-      </a>
-
-      <a href="#"
-        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">engineering</span>
-        <span class="text-[14px] font-semibold">Technicians</span>
-      </a>
-
-      <a href="#"
-        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">settings</span>
-        <span class="text-[14px] font-semibold">Settings</span>
-      </a>
-
-    </div>
-
-    <!-- New Appointment -->
-    <button type="button" (click)="openModal()"
-      class="mt-[16px] mb-[40px] w-full bg-[#004ac6] py-[8px] rounded-xl text-white text-[14px] font-semibold flex items-center justify-center gap-[4px] hover:opacity-90 transition-opacity">
-      <span class="material-symbols-outlined text-[18px]">add</span>
-      Agendar Nueva Cita
-    </button>
-
-    <!-- Bottom navigation -->
-    <div class="border-t border-[#c3c6d7] pt-[16px] space-y-[4px]">
-
-      <a href="#"
-        class="flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors">
-        <span class="material-symbols-outlined">help</span>
-        <span class="text-[14px] font-semibold">Help Center</span>
-      </a>
-
-      <button type="button"
-        class="w-full flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors">
-        <span class="material-symbols-outlined">logout</span>
-        <span class="text-[14px] font-semibold">Log Out</span>
-      </button>
-
-    </div>
-  </nav>
+  <app-dashboard></app-dashboard>
 
   <!-- Top Bar -->
   <header
@@ -221,16 +146,14 @@
           Status
         </label>
 
-        <div class="flex gap-[8px]">
-          <button type="button"
-            class="px-[16px] py-2 bg-[#007d57]/10 text-[#006243] text-[14px] font-semibold rounded-xl border border-[#006243]/20">
-            Confirmed
+        <div class="flex flex-wrap gap-2 mb-6">
+          @for (filter of filters; track filter.value) {
+          <button type="button" (click)="setFilteringByStatus(filter.value)"
+            class="px-4 py-2 text-xs font-semibold rounded-xl border transition-all duration-200"
+            [class]="selectedStatusFilter() === filter.value ? filter.activeClass : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'">
+            {{ filter.label }}
           </button>
-
-          <button type="button"
-            class="px-[16px] py-2 bg-[#e6e8ea] text-[#434655] text-[14px] font-semibold rounded-xl border border-[#c3c6d7]">
-            Pending
-          </button>
+          }
         </div>
       </div>
 
@@ -250,8 +173,7 @@
 
       <!-- Card 1 -->
 
-      @for(appointment of this.appointmentsService.appointments(); track appointment.id){
-
+      @for(appointment of filteredAppointments(); track appointment.id){
 
       <div
         class="bg-white rounded-2xl p-[24px] flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
@@ -453,8 +375,14 @@
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Status
             </label>
-            <input type="text" formControlName="status"
-              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+            <select formControlName="status"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              <option value="scheduled">Scheduled</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+
+            </select>
           </div>
 
         </div>
@@ -480,390 +408,344 @@
 
   </div>
 
-  
+
 
   }
 
   @if (showEditModal && selectedAppointment) {
 
-<div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+  <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
 
-  <!-- Overlay -->
-  <button
-    type="button"
-    (click)="closeEditModal()"
-    class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
-    aria-label="Cerrar modal">
-  </button>
+    <!-- Overlay -->
+    <button type="button" (click)="closeEditModal()" class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
+      aria-label="Cerrar modal">
+    </button>
 
-  <!-- Modal -->
-  <div
-    class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-[#c3c6d7]/60 flex flex-col max-h-[90vh] overflow-hidden">
+    <!-- Modal -->
+    <div
+      class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-[#c3c6d7]/60 flex flex-col max-h-[90vh] overflow-hidden">
 
-    <!-- Header -->
-    <div class="p-[24px] border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
+      <!-- Header -->
+      <div class="p-[24px] border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
 
-      <div class="flex items-center gap-[16px]">
+        <div class="flex items-center gap-[16px]">
 
-        <div
-          class="w-10 h-10 rounded-xl bg-[#004ac6] text-white flex items-center justify-center shadow-sm">
+          <div class="w-10 h-10 rounded-xl bg-[#004ac6] text-white flex items-center justify-center shadow-sm">
 
-          <span class="material-symbols-outlined text-[20px]">
-            edit_calendar
+            <span class="material-symbols-outlined text-[20px]">
+              edit_calendar
+            </span>
+
+          </div>
+
+          <div>
+
+            <div class="flex items-center gap-2">
+
+              <h3 class="text-[20px] font-bold text-[#191c1e]">
+                Actualizar Cita
+              </h3>
+
+              <span class="px-2 py-0.5 rounded-full text-[12px] font-bold bg-[#dbe1ff] text-[#004ac6]">
+
+                #{{ selectedAppointment.id }}
+
+              </span>
+
+            </div>
+
+            <p class="text-[12px] text-[#434655] mt-0.5">
+              Modifica los detalles del servicio, horario o técnico asignado
+            </p>
+
+          </div>
+
+        </div>
+
+        <button type="button" (click)="closeEditModal()"
+          class="w-9 h-9 rounded-full flex items-center justify-center text-[#737686] hover:text-[#191c1e] hover:bg-[#eceef0] transition-colors">
+
+          <span class="material-symbols-outlined">
+            close
+          </span>
+
+        </button>
+
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="editAppointmentGroup" class="p-[24px] overflow-y-auto space-y-[16px]">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+
+          <!-- Cliente -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Cliente
+            </label>
+
+            <input type="text" formControlName="customerName"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!--Telefono Cliente-->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Numero telefonico del cliente
+            </label>
+
+            <input type="text" formControlName="customerPhone"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!-- Servicio -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Servicio Seleccionado
+            </label>
+
+            <input type="text" formControlName="applianceType"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!-- Fecha -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Fecha
+            </label>
+
+            <input type="date" formControlName="appointmentDate"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!-- Hora -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Hora
+            </label>
+
+            <input type="time" formControlName="appointmentTime"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!-- Estado -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Estado
+            </label>
+
+            <select formControlName="status"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              <option value="scheduled">Scheduled</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+
+            </select>
+
+          </div>
+
+          <!-- Técnico -->
+          <div>
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Técnico
+            </label>
+
+            <input type="text" formControlName="technicianId"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+          </div>
+
+          <!-- Dirección -->
+          <div class="md:col-span-2">
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Dirección / Ubicación del Cliente
+            </label>
+
+            <div class="relative">
+
+              <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737686] text-[18px]">
+
+                location_on
+
+              </span>
+
+              <input type="text" formControlName="address"
+                class="w-full pl-10 pr-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+
+            </div>
+
+          </div>
+
+          <!-- Descripción -->
+          <div class="md:col-span-2">
+
+            <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
+              Descripción / Notas
+            </label>
+
+            <textarea formControlName="problemDescription" rows="3"
+              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]"
+              placeholder="Detalles del servicio...">
+          </textarea>
+
+          </div>
+
+        </div>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-between gap-[16px]">
+
+        <button type="button" (click)="closeEditModal()"
+          class="px-[24px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
+
+          Cancelar
+
+        </button>
+
+        <button type="button" (click)="UpdateAppointment()" [disabled]="editAppointmentGroup.invalid"
+          class="px-[24px] py-2 bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
+
+          <span class="material-symbols-outlined text-[18px]">
+            check
+          </span>
+
+          Guardar Cambios
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  }
+
+  @if (showDeleteModal && selectedAppointment) {
+
+  <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+
+    <!-- Overlay -->
+    <button type="button" (click)="closeDeleteModal()" class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
+      aria-label="Cerrar modal">
+    </button>
+
+    <!-- Modal -->
+    <div
+      class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-red-200 flex flex-col overflow-hidden">
+
+      <!-- Header -->
+      <div class="p-[24px] border-b border-[#c3c6d7]/60 flex items-start gap-[16px] bg-red-50">
+
+        <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+
+          <span class="material-symbols-outlined text-[26px]">
+            warning
           </span>
 
         </div>
 
-        <div>
+        <div class="flex-1">
 
-          <div class="flex items-center gap-2">
+          <h3 class="text-[20px] font-bold text-[#191c1e]">
+            ¿Eliminar esta cita?
+          </h3>
 
-            <h3 class="text-[20px] font-bold text-[#191c1e]">
-              Actualizar Cita
-            </h3>
-
-            <span
-              class="px-2 py-0.5 rounded-full text-[12px] font-bold bg-[#dbe1ff] text-[#004ac6]">
-
-              #{{ selectedAppointment.id }}
-
-            </span>
-
-          </div>
-
-          <p class="text-[12px] text-[#434655] mt-0.5">
-            Modifica los detalles del servicio, horario o técnico asignado
+          <p class="text-[12px] text-[#737686] mt-0.5">
+            ID: #{{ selectedAppointment.id }}
           </p>
 
         </div>
 
-      </div>
+        <button type="button" (click)="closeDeleteModal()"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-[#737686] hover:text-[#191c1e] hover:bg-[#eceef0] transition-colors">
 
-      <button
-        type="button"
-        (click)="closeEditModal()"
-        class="w-9 h-9 rounded-full flex items-center justify-center text-[#737686] hover:text-[#191c1e] hover:bg-[#eceef0] transition-colors">
+          <span class="material-symbols-outlined text-[20px]">
+            close
+          </span>
 
-        <span class="material-symbols-outlined">
-          close
-        </span>
-
-      </button>
-
-    </div>
-
-    <!-- Form -->
-    <form
-      [formGroup]="editAppointmentGroup"
-      class="p-[24px] overflow-y-auto space-y-[16px]">
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
-
-        <!-- Cliente -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Cliente
-          </label>
-
-          <input
-            type="text"
-            formControlName="customerName"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!--Telefono Cliente-->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Numero telefonico del cliente
-          </label>
-
-          <input
-            type="text"
-            formControlName="customerPhone"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!-- Servicio -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Servicio Seleccionado
-          </label>
-
-          <input
-            type="text"
-            formControlName="applianceType"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!-- Fecha -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Fecha
-          </label>
-
-          <input
-            type="date"
-            formControlName="appointmentDate"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!-- Hora -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Hora
-          </label>
-
-          <input
-            type="time"
-            formControlName="appointmentTime"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!-- Estado -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Estado
-          </label>
-
-          <select
-            formControlName="status"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-            <option value="Confirmed">Confirmed</option>
-            <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-
-          </select>
-
-        </div>
-
-        <!-- Técnico -->
-        <div>
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Técnico
-          </label>
-
-          <input
-            type="text"
-            formControlName="technicianId"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-        </div>
-
-        <!-- Dirección -->
-        <div class="md:col-span-2">
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Dirección / Ubicación del Cliente
-          </label>
-
-          <div class="relative">
-
-            <span
-              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737686] text-[18px]">
-
-              location_on
-
-            </span>
-
-            <input
-              type="text"
-              formControlName="address"
-              class="w-full pl-10 pr-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
-
-          </div>
-
-        </div>
-
-        <!-- Descripción -->
-        <div class="md:col-span-2">
-
-          <label class="text-[12px] font-bold text-[#191c1e] block mb-1">
-            Descripción / Notas
-          </label>
-
-          <textarea
-            formControlName="problemDescription"
-            rows="3"
-            class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]"
-            placeholder="Detalles del servicio...">
-          </textarea>
-
-        </div>
+        </button>
 
       </div>
 
-    </form>
+      <!-- Content -->
+      <div class="p-[24px] space-y-[16px]">
 
-    <!-- Footer -->
-    <div
-      class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-between gap-[16px]">
+        <p class="text-[14px] text-[#434655] leading-relaxed">
 
-      <button
-        type="button"
-        (click)="closeEditModal()"
-        class="px-[24px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
+          ¿Estás seguro de que deseas eliminar la cita de
 
-        Cancelar
+          <strong class="text-[#191c1e] font-bold">
+            "{{ selectedAppointment.applianceType }}"
+          </strong>
 
-      </button>
+          para el cliente
 
-      <button
-        type="button"
-        (click)="UpdateAppointment()"
-        [disabled]="editAppointmentGroup.invalid"
-        class="px-[24px] py-2 bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
+          <strong class="text-[#191c1e] font-bold">
+            {{ selectedAppointment.customerName }}
+          </strong>?
 
-        <span class="material-symbols-outlined text-[18px]">
-          check
-        </span>
-
-        Guardar Cambios
-
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-}
-
-@if (showDeleteModal && selectedAppointment) {
-
-<div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
-
-  <!-- Overlay -->
-  <button
-    type="button"
-    (click)="closeDeleteModal()"
-    class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
-    aria-label="Cerrar modal">
-  </button>
-
-  <!-- Modal -->
-  <div
-    class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-red-200 flex flex-col overflow-hidden">
-
-    <!-- Header -->
-    <div
-      class="p-[24px] border-b border-[#c3c6d7]/60 flex items-start gap-[16px] bg-red-50">
-
-      <div
-        class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
-
-        <span class="material-symbols-outlined text-[26px]">
-          warning
-        </span>
-
-      </div>
-
-      <div class="flex-1">
-
-        <h3 class="text-[20px] font-bold text-[#191c1e]">
-          ¿Eliminar esta cita?
-        </h3>
-
-        <p class="text-[12px] text-[#737686] mt-0.5">
-          ID: #{{ selectedAppointment.id }}
         </p>
 
-      </div>
+        <div
+          class="p-[16px] rounded-xl bg-[#f7f9fb] border border-[#c3c6d7]/60 text-[12px] text-[#434655] flex items-center gap-[8px]">
 
-      <button
-        type="button"
-        (click)="closeDeleteModal()"
-        class="w-8 h-8 rounded-full flex items-center justify-center text-[#737686] hover:text-[#191c1e] hover:bg-[#eceef0] transition-colors">
+          <span class="material-symbols-outlined text-[#737686] text-[20px]">
+            info
+          </span>
 
-        <span class="material-symbols-outlined text-[20px]">
-          close
-        </span>
+          <span>
+            Esta acción notificará al técnico asignado y liberará el slot en WhatsApp.
+          </span>
 
-      </button>
-
-    </div>
-
-    <!-- Content -->
-    <div class="p-[24px] space-y-[16px]">
-
-      <p class="text-[14px] text-[#434655] leading-relaxed">
-
-        ¿Estás seguro de que deseas eliminar la cita de
-
-        <strong class="text-[#191c1e] font-bold">
-          "{{ selectedAppointment.applianceType }}"
-        </strong>
-
-        para el cliente
-
-        <strong class="text-[#191c1e] font-bold">
-          {{ selectedAppointment.customerName }}
-        </strong>?
-
-      </p>
-
-      <div
-        class="p-[16px] rounded-xl bg-[#f7f9fb] border border-[#c3c6d7]/60 text-[12px] text-[#434655] flex items-center gap-[8px]">
-
-        <span class="material-symbols-outlined text-[#737686] text-[20px]">
-          info
-        </span>
-
-        <span>
-          Esta acción notificará al técnico asignado y liberará el slot en WhatsApp.
-        </span>
+        </div>
 
       </div>
 
-    </div>
+      <!-- Footer -->
+      <div class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-end gap-[16px]">
 
-    <!-- Footer -->
-    <div
-      class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-end gap-[16px]">
+        <button type="button" (click)="closeDeleteModal()"
+          class="px-[16px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
 
-      <button
-        type="button"
-        (click)="closeDeleteModal()"
-        class="px-[16px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
+          Cancelar
 
-        Cancelar
+        </button>
 
-      </button>
+        <button type="button" (click)="confirmDeleteAppointment()"
+          class="px-[24px] py-2 bg-red-600 text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
 
-      <button
-        type="button"
-        (click)="confirmDeleteAppointment()"
-        class="px-[24px] py-2 bg-red-600 text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
+          <span class="material-symbols-outlined text-[18px]">
+            delete_forever
+          </span>
 
-        <span class="material-symbols-outlined text-[18px]">
-          delete_forever
-        </span>
+          Sí, Eliminar Cita
 
-        Sí, Eliminar Cita
+        </button>
 
-      </button>
+      </div>
 
     </div>
 
   </div>
 
-</div>
-
-}
+  }
   <app-toast-message [(error)]="errorAppointment" [(errorMessage)]="errorMessageAppointment"></app-toast-message>
 </main>

@@ -1,0 +1,69 @@
+  <nav
+    class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-[#c3c6d7] py-[24px] px-[16px] z-50">
+
+    <!-- Logo -->
+    <div class="mb-[40px] flex items-center gap-[8px]">
+      <div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center text-white">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+          engineering
+        </span>
+      </div>
+
+      <div>
+        <h1 class="text-[20px] font-bold text-[#191c1e] leading-tight">
+          ProService SaaS
+        </h1>
+        <p class="text-[12px] font-medium text-[#434655]">
+          Enterprise Tier
+        </p>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex-1 space-y-[4px]">
+
+      <a routerLink="/dashboard"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="text-[14px] font-semibold">Dashboard</span>
+      </a>
+
+      <a routerLink="/appointments"
+        class="flex items-center gap-[16px] bg-[#8a4cfc] text-white rounded-lg px-[16px] py-[8px] translate-x-1">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+          calendar_today
+        </span>
+        <span class="text-[14px] font-semibold">Appointments</span>
+      </a>
+
+      <a href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
+        <span class="material-symbols-outlined">engineering</span>
+        <span class="text-[14px] font-semibold">Technicians</span>
+      </a>
+
+      <a href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors duration-200 rounded-lg">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="text-[14px] font-semibold">Settings</span>
+      </a>
+
+    </div>
+
+    <!-- Bottom navigation -->
+    <div class="border-t border-[#c3c6d7] pt-[16px] space-y-[4px]">
+
+      <a href="#"
+        class="flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors">
+        <span class="material-symbols-outlined">help</span>
+        <span class="text-[14px] font-semibold">Help Center</span>
+      </a>
+
+      <button type="button"
+        class="w-full flex items-center gap-[16px] text-[#434655] hover:text-[#712ae2] px-[16px] py-[8px] transition-colors">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="text-[14px] font-semibold">Log Out</span>
+      </button>
+
+    </div>
+  </nav>

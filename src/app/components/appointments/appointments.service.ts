@@ -14,6 +14,8 @@ export class AppointmentsService {
 
   appointments = signal<Appointment[]>([]);
 
+  dataAppointment = this.appointments;
+
   constructor(private http: HttpClient, private tokenService: TokenService) { }
 
   getAppointments(businessId: number | null) {
@@ -49,5 +51,16 @@ export class AppointmentsService {
     })
 
     return this.http.put<Appointment>(`${this.URL_API}/update/${payload.id}`, payload,  { headers });
+  }
+
+  deleteAppointment(id: number){
+
+    const token = this.tokenService.getToken();
+
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${token}`
+    })
+
+    return this.http.delete(`${this.URL_API}/delete/${id}`, { headers })
   }
 }

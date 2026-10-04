@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { AppointmentsService } from './appointments.service';
 import { AuthService } from '../../service/Auth/auth.service';
 import { ToastMessage } from '../toast-message/toast-message';
@@ -6,9 +6,11 @@ import { FormControl, FormGroup, ɵInternalFormsSharedModule, ReactiveFormsModul
 import { TokenService } from '../../service/token/token';
 import { Appointment, AppointmentCreate, AppointmentUpdateInterface } from '../../model/interfaces';
 import { App } from '../../app';
+import { Dashboard } from '../dashboard/dashboard';
+
 @Component({
   selector: 'app-appointments',
-  imports: [ToastMessage, ɵInternalFormsSharedModule, ReactiveFormsModule],
+  imports: [ToastMessage, ɵInternalFormsSharedModule, ReactiveFormsModule, Dashboard],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
@@ -35,6 +37,24 @@ export class Appointments implements OnInit {
   appointmentTime: FormControl;
   status: FormControl;
   technicianId: FormControl;
+
+  selectedStatusFilter = signal<string>("all");
+
+  filteredAppointments = computed(() => {
+
+    const currentData = this.appointmentsService.appointments();
+    const currentStatusFilter = this.selectedStatusFilter();
+    
+    if ( currentStatusFilter === "all") {
+      return currentData;
+    }
+
+    return currentData.filter(appointment => appointment.status === currentStatusFilter);
+  })
+
+  setFilteringByStatus(requiredStatusFilter: string){
+    this.selectedStatusFilter.set(requiredStatusFilter);
+  }
 
 
   constructor(public appointmentsService: AppointmentsService, private authService: AuthService, private tokenService: TokenService) {
@@ -175,7 +195,22 @@ export class Appointments implements OnInit {
       return;
     }
 
-    console.log("Cita que se quiere eliminar:", this.selectedAppointment);
+    const idToDelete = this.selectedAppointment.id;
+
+    this.appointmentsService.deleteAppointment(idToDelete).subscribe({
+      next: () => {
+        
+        this.appointmentsService.appointments.update(currentAppointments => 
+          currentAppointments.filter(appointment => appointment.id !== idToDelete)
+        )
+
+        this.closeDeleteModal();
+      },
+      error: (error) => {
+        this.errorAppointment = true;
+        this.errorMessageAppointment = "No se pudo eliminar la cita" + error;
+      }
+    })
 
     this.closeDeleteModal();
   }
@@ -222,4 +257,13 @@ export class Appointments implements OnInit {
     this.showDeleteModal = false;
     this.selectedAppointment = null;
   }
+
+  //---FILTERS---
+
+  filters = [
+  { value: 'all', label: 'Todos', activeClass: 'bg-gray-900 text-white border-gray-900' },
+  { value: 'scheduled', label: 'Programadas', activeClass: 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100' },
+  { value: 'confirmed', label: 'Confirmadas', activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-100' },
+  { value: 'cancelled', label: 'Canceladas', activeClass: 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-100' }
+];
 }
