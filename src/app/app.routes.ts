@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Register } from './components/register/register';
 import { Login } from './components/login/login';
 import { Appointments } from './components/appointments/appointments';
+import { BusinessConfiguration } from './components/business-configuration/business-configuration'
 import { authGuard } from './guards/auth-guard';
 
 
@@ -17,6 +18,11 @@ export const routes: Routes = [
     {
         path: 'appointments',
         component : Appointments,
+        canActivate: [authGuard]
+    },
+    {
+        path: "business-configuration",
+        component: BusinessConfiguration,
         canActivate: [authGuard]
     },
     {
