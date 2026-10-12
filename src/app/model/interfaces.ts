@@ -65,3 +65,24 @@ export interface AuthInformation {
     email : string;
     businessName : string;
 }
+
+export interface BusinessContext {
+
+    businessId: number;
+    phoneNumberId: string;
+    email: string;
+    password: string;
+    businessName: string;
+    fullOwnerName: string;
+    isActive: boolean;
+}
+
+// Solo se envían los campos que se desean cambiar; los omitidos se conservan.
+export interface BusinessConfigurationUpdate {
+    services?: string[];
+    coverageAreas?: string[];
+    workingHours?: Record<string, string>;
+    businessRules?: string[];
+    systemPrompt?: string;
+    maxParallelAppointments?: number;
+}

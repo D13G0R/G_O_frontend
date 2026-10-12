@@ -1,14 +1,14 @@
-<main class="min-h-screen bg-[#f7f9fb] text-[#191c1e]" class="appointments-page">
+<main class="appointments-page min-h-screen bg-[#f7f9fb] text-[#191c1e]">
 
   <!-- Side Navigation -->
   <app-dashboard></app-dashboard>
 
   <!-- Top Bar -->
   <header
-    class="fixed top-0 right-0 left-64 h-16 bg-[#f7f9fb] border-b border-[#c3c6d7] flex justify-between items-center px-[32px] z-40">
+    class="fixed top-0 right-0 left-64 h-16 bg-[#f7f9fb] border-b border-[#c3c6d7] flex justify-between items-center px-8 z-40">
 
-    <div class="flex items-center gap-[16px]">
-      <div class="flex items-center gap-[4px] text-[#434655] text-[12px] font-medium">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1 text-[#434655] text-[12px] font-medium">
         <span>Apps</span>
 
         <span class="material-symbols-outlined text-[14px]">
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-[24px]">
+    <div class="flex items-center gap-6">
 
       <!-- Search -->
       <div class="relative hidden lg:block">
@@ -41,10 +41,10 @@
         </span>
       </button>
 
-      <div class="h-8 w-[1px] bg-[#c3c6d7] mx-2"></div>
+      <div class="h-8 w-px bg-[#c3c6d7] mx-2"></div>
 
       <!-- User -->
-      <div class="flex items-center gap-[8px]">
+      <div class="flex items-center gap-2">
         <div class="text-right hidden sm:block">
           <p class="text-[14px] font-semibold text-[#191c1e]">
             Alex Rivera
@@ -66,13 +66,13 @@
   </header>
 
   <!-- Main -->
-  <section class="ml-64 pt-24 px-[32px] pb-12">
+  <section class="ml-64 pt-24 px-8 pb-12">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-[24px] mb-[40px]">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
 
       <div>
-        <h2 class="text-[32px] font-semibold text-[#191c1e] mb-[4px]">
+        <h2 class="text-[32px] font-semibold text-[#191c1e] mb-1">
           Manage Appointments
         </h2>
 
@@ -83,10 +83,10 @@
       </div>
 
       <!-- View selector -->
-      <div class="flex items-center gap-[16px]">
+      <div class="flex items-center gap-4">
         <div class="flex bg-[#f2f4f6] p-1 rounded-xl border border-[#c3c6d7]">
           <button type="button"
-            class="px-[16px] py-1.5 bg-white shadow-sm rounded-lg text-[14px] text-[#004ac6] flex items-center gap-[4px]">
+            class="px-4 py-1.5 bg-white shadow-sm rounded-lg text-[14px] text-[#004ac6] flex items-center gap-1">
             <span class="material-symbols-outlined text-[18px]">
               grid_view
             </span>
@@ -94,7 +94,7 @@
           </button>
 
           <button type="button"
-            class="px-[16px] py-1.5 text-[14px] text-[#434655] flex items-center gap-[4px] hover:text-[#191c1e]">
+            class="px-4 py-1.5 text-[14px] text-[#434655] flex items-center gap-1 hover:text-[#191c1e]">
             <span class="material-symbols-outlined text-[18px]">
               list
             </span>
@@ -107,7 +107,7 @@
 
     <!-- Filters -->
     <div
-      class="bg-white rounded-2xl p-[16px] mb-[40px] flex flex-wrap items-center gap-[24px] shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
+      class="bg-white rounded-2xl p-4 mb-10 flex flex-wrap items-center gap-6 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
 
       <!-- Date -->
       <div class="flex flex-col gap-1">
@@ -121,7 +121,7 @@
           </span>
 
           <input type="date"
-            class="pl-10 pr-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-48" />
+            class="pl-10 pr-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-48" />
         </div>
       </div>
 
@@ -132,7 +132,7 @@
         </label>
 
         <select
-          class="pl-[16px] pr-[40px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-56">
+          class="pl-4 pr-10 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-56">
           <option>All Technicians</option>
           <option>Marcus Aurelius</option>
           <option>Sarah Jenkins</option>
@@ -159,7 +159,7 @@
 
       <!-- Reset -->
       <button type="button"
-        class="ml-auto text-[#004ac6] text-[14px] font-bold flex items-center gap-[4px] hover:underline">
+        class="ml-auto text-[#004ac6] text-[14px] font-bold flex items-center gap-1 hover:underline">
         <span class="material-symbols-outlined">
           filter_list
         </span>
@@ -169,22 +169,22 @@
     </div>
 
     <!-- Appointment Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[24px]">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
       <!-- Card 1 -->
 
       @for(appointment of filteredAppointments(); track appointment.id){
 
       <div
-        class="bg-white rounded-2xl p-[24px] flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
+        class="bg-white rounded-2xl p-6 flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
 
-        <div class="flex justify-between items-start mb-[16px]">
+        <div class="flex justify-between items-start mb-4">
           <div class="bg-[#004ac6]/5 p-2 rounded-xl text-[#004ac6] text-[20px] font-semibold">
             {{appointment.appointmentTime}}
           </div>
 
           <span
-            class="px-[16px] py-1 bg-[#85f8c4] text-[#005137] text-[12px] rounded-full font-bold uppercase tracking-tight">
+            class="px-4 py-1 bg-[#85f8c4] text-[#005137] text-[12px] rounded-full font-bold uppercase tracking-tight">
             {{ appointment.status }}
           </span>
         </div>
@@ -193,11 +193,11 @@
           {{appointment.applianceType}}
         </h3>
 
-        <p class="text-[14px] font-semibold text-[#434655] mb-[24px]">
+        <p class="text-[14px] font-semibold text-[#434655] mb-6">
           Client: {{appointment.customerName}} {{appointment.customerPhone}}
         </p>
 
-        <div class="flex items-center gap-[16px] mt-auto pt-[16px] border-t border-[#c3c6d7]/50">
+        <div class="flex items-center gap-4 mt-auto pt-4 border-t border-[#c3c6d7]/50">
           <div class="w-10 h-10 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#004ac6]">
             <span class="material-symbols-outlined">person</span>
           </div>
@@ -244,10 +244,10 @@
 
       <!-- Add Appointment -->
       <button type="button" (click)="openModal()"
-        class="border-2 border-dashed border-[#c3c6d7] rounded-2xl p-[24px] flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#004ac6] hover:bg-[#004ac6]/5 transition-all group min-h-[220px]">
+        class="border-2 border-dashed border-[#c3c6d7] rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#004ac6] hover:bg-[#004ac6]/5 transition-all group min-h-55">
 
         <div
-          class="w-12 h-12 rounded-full bg-[#eceef0] flex items-center justify-center text-[#c3c6d7] mb-[16px] group-hover:text-[#004ac6] group-hover:bg-[#004ac6]/10 transition-all">
+          class="w-12 h-12 rounded-full bg-[#eceef0] flex items-center justify-center text-[#c3c6d7] mb-4 group-hover:text-[#004ac6] group-hover:bg-[#004ac6]/10 transition-all">
           <span class="material-symbols-outlined text-3xl">
             add_circle
           </span>
@@ -257,7 +257,7 @@
           Add New Appointment
         </h4>
 
-        <p class="text-[14px] text-[#737686] px-[16px] mt-2">
+        <p class="text-[14px] text-[#737686] px-4 mt-2">
           Fill the schedule and maximize your team's efficiency.
         </p>
 
@@ -270,7 +270,7 @@
   <!-- Modal -->
   @if (showModal) {
 
-  <div class="fixed inset-0 z-[60]">
+  <div class="fixed inset-0 z-60">
 
     <!-- Overlay -->
     <button type="button" (click)="closeModal()" class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
@@ -280,7 +280,7 @@
     <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
 
       <!-- Header -->
-      <div class="p-[24px] border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
+      <div class="p-6 border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
 
         <div>
           <h3 class="text-[20px] font-semibold text-[#191c1e]">
@@ -302,81 +302,81 @@
       </div>
 
       <!-- Form -->
-      <form class="flex-1 overflow-y-auto p-[24px] space-y-[24px]" [formGroup]="appointmentGroup"
+      <form class="flex-1 overflow-y-auto p-6 space-y-6" [formGroup]="appointmentGroup"
         (ngSubmit)="createAppointment()">
 
         <!-- Customer Phone -->
-        <div class="space-y-[8px]">
+        <div class="space-y-2">
           <label class="text-[14px] font-semibold text-[#191c1e] block">
             Customer Phone
           </label>
           <input type="text" placeholder="3000000000" formControlName="customerPhone"
-            class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+            class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
         </div>
 
         <!-- Customer Name -->
-        <div class="space-y-[8px]">
+        <div class="space-y-2">
           <label class="text-[14px] font-semibold text-[#191c1e] block">
             Customer Name
           </label>
           <input type="text" placeholder="e.g. Acme Corp" formControlName="customerName"
-            class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+            class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
         </div>
 
         <!-- Appliance Type -->
-        <div class="space-y-[8px]">
+        <div class="space-y-2">
           <label class="text-[14px] font-semibold text-[#191c1e] block">
             Appliance Type
           </label>
           <input type="text" placeholder="e.g. Lavadora" formControlName="applianceType"
-            class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+            class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
         </div>
 
-        <div class="grid grid-cols-2 gap-[16px]">
+        <div class="grid grid-cols-2 gap-4">
 
           <!-- Problem Description (Ocupa 2 columnas para mejor lectura) -->
-          <div class="space-y-[8px] col-span-2">
+          <div class="space-y-2 col-span-2">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Problem Description
             </label>
             <input type="text" formControlName="problemDescription"
-              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
           </div>
 
           <!-- Address (Ocupa 2 columnas si es una dirección larga) -->
-          <div class="space-y-[8px] col-span-2">
+          <div class="space-y-2 col-span-2">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Address
             </label>
             <input type="text" formControlName="address"
-              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
           </div>
 
           <!-- Date -->
-          <div class="space-y-[8px]">
+          <div class="space-y-2">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Date
             </label>
             <input type="date" formControlName="appointmentDate"
-              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
           </div>
 
           <!-- Time -->
-          <div class="space-y-[8px]">
+          <div class="space-y-2">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Time
             </label>
             <input type="time" formControlName="appointmentTime" step="1"
-              class="w-full px-[16px] py-[8px] border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
           </div>
 
           <!-- Status -->
-          <div class="space-y-[8px] col-span-2">
+          <div class="space-y-2 col-span-2">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
               Status
             </label>
             <select formControlName="status"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
               <option value="scheduled">Scheduled</option>
               <option value="confirmed">Confirmed</option>
               <option value="completed">Completed</option>
@@ -388,14 +388,14 @@
         </div>
 
         <!-- Footer con botones -->
-        <div class="p-[24px] bg-[#f2f4f6] border-t border-[#c3c6d7] flex gap-[16px] -mx-[24px] -mb-[24px] mt-[24px]">
+        <div class="p-6 bg-[#f2f4f6] border-t border-[#c3c6d7] flex gap-4 -mx-6 -mb-6 mt-6">
           <button type="button" (click)="closeModal()"
-            class="flex-1 py-[8px] border border-[#c3c6d7] rounded-xl font-semibold hover:bg-[#eceef0] transition-colors">
+            class="flex-1 py-2 border border-[#c3c6d7] rounded-xl font-semibold hover:bg-[#eceef0] transition-colors">
             Cancel
           </button>
 
           <button type="submit"
-            class="flex-[2] py-[8px] bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
+            class="flex-2 py-2 bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 transition-opacity">
             Confirm Schedule
           </button>
         </div>
@@ -414,7 +414,7 @@
 
   @if (showEditModal && selectedAppointment) {
 
-  <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+  <div class="fixed inset-0 z-70 flex items-center justify-center p-4">
 
     <!-- Overlay -->
     <button type="button" (click)="closeEditModal()" class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
@@ -426,9 +426,9 @@
       class="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-[#c3c6d7]/60 flex flex-col max-h-[90vh] overflow-hidden">
 
       <!-- Header -->
-      <div class="p-[24px] border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
+      <div class="p-6 border-b border-[#c3c6d7] flex items-center justify-between bg-[#f7f9fb]">
 
-        <div class="flex items-center gap-[16px]">
+        <div class="flex items-center gap-4">
 
           <div class="w-10 h-10 rounded-xl bg-[#004ac6] text-white flex items-center justify-center shadow-sm">
 
@@ -474,9 +474,9 @@
       </div>
 
       <!-- Form -->
-      <form [formGroup]="editAppointmentGroup" class="p-[24px] overflow-y-auto space-y-[16px]">
+      <form [formGroup]="editAppointmentGroup" class="p-6 overflow-y-auto space-y-4">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
           <!-- Cliente -->
           <div>
@@ -486,7 +486,7 @@
             </label>
 
             <input type="text" formControlName="customerName"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -498,7 +498,7 @@
             </label>
 
             <input type="text" formControlName="customerPhone"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -510,7 +510,7 @@
             </label>
 
             <input type="text" formControlName="applianceType"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -522,7 +522,7 @@
             </label>
 
             <input type="date" formControlName="appointmentDate"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -534,7 +534,7 @@
             </label>
 
             <input type="time" formControlName="appointmentTime"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -546,7 +546,7 @@
             </label>
 
             <select formControlName="status"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
               <option value="scheduled">Scheduled</option>
               <option value="confirmed">Confirmed</option>
               <option value="completed">Completed</option>
@@ -564,7 +564,7 @@
             </label>
 
             <input type="text" formControlName="technicianId"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
           </div>
 
@@ -585,7 +585,7 @@
               </span>
 
               <input type="text" formControlName="address"
-                class="w-full pl-10 pr-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+                class="w-full pl-10 pr-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
 
             </div>
 
@@ -599,9 +599,8 @@
             </label>
 
             <textarea formControlName="problemDescription" rows="3"
-              class="w-full px-[16px] py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]"
-              placeholder="Detalles del servicio...">
-          </textarea>
+              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]"
+              placeholder="Detalles del servicio..."></textarea>
 
           </div>
 
@@ -610,17 +609,17 @@
       </form>
 
       <!-- Footer -->
-      <div class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-between gap-[16px]">
+      <div class="p-6 bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-between gap-4">
 
         <button type="button" (click)="closeEditModal()"
-          class="px-[24px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
+          class="px-6 py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
 
           Cancelar
 
         </button>
 
         <button type="button" (click)="UpdateAppointment()" [disabled]="editAppointmentGroup.invalid"
-          class="px-[24px] py-2 bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
+          class="px-6 py-2 bg-[#004ac6] text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
 
           <span class="material-symbols-outlined text-[18px]">
             check
@@ -640,7 +639,7 @@
 
   @if (showDeleteModal && selectedAppointment) {
 
-  <div class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+  <div class="fixed inset-0 z-70 flex items-center justify-center p-4">
 
     <!-- Overlay -->
     <button type="button" (click)="closeDeleteModal()" class="absolute inset-0 bg-[#191c1e]/40 backdrop-blur-sm"
@@ -652,7 +651,7 @@
       class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-red-200 flex flex-col overflow-hidden">
 
       <!-- Header -->
-      <div class="p-[24px] border-b border-[#c3c6d7]/60 flex items-start gap-[16px] bg-red-50">
+      <div class="p-6 border-b border-[#c3c6d7]/60 flex items-start gap-4 bg-red-50">
 
         <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
 
@@ -686,7 +685,7 @@
       </div>
 
       <!-- Content -->
-      <div class="p-[24px] space-y-[16px]">
+      <div class="p-6 space-y-4">
 
         <p class="text-[14px] text-[#434655] leading-relaxed">
 
@@ -705,7 +704,7 @@
         </p>
 
         <div
-          class="p-[16px] rounded-xl bg-[#f7f9fb] border border-[#c3c6d7]/60 text-[12px] text-[#434655] flex items-center gap-[8px]">
+          class="p-4 rounded-xl bg-[#f7f9fb] border border-[#c3c6d7]/60 text-[12px] text-[#434655] flex items-center gap-2">
 
           <span class="material-symbols-outlined text-[#737686] text-[20px]">
             info
@@ -720,17 +719,17 @@
       </div>
 
       <!-- Footer -->
-      <div class="p-[24px] bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-end gap-[16px]">
+      <div class="p-6 bg-[#f7f9fb] border-t border-[#c3c6d7] flex items-center justify-end gap-4">
 
         <button type="button" (click)="closeDeleteModal()"
-          class="px-[16px] py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
+          class="px-4 py-2 border border-[#c3c6d7] text-[#434655] hover:bg-[#eceef0] rounded-xl font-semibold transition-colors">
 
           Cancelar
 
         </button>
 
         <button type="button" (click)="confirmDeleteAppointment()"
-          class="px-[24px] py-2 bg-red-600 text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
+          class="px-6 py-2 bg-red-600 text-white rounded-xl font-semibold hover:opacity-90 shadow-sm flex items-center gap-2 transition-opacity">
 
           <span class="material-symbols-outlined text-[18px]">
             delete_forever
