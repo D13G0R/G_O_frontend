@@ -1,8 +1,15 @@
 import { Component } from '@angular/core';
-import { FormControl, FormControlName, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormControlName,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { RegisterService } from './register.service';
 import { RouterLink } from '@angular/router';
-import { UserPayload } from '../../model/interfaces';
+import { RegisterRequest } from '../../model/interfaces';
 import { Router } from '@angular/router';
 import { ToastMessage } from '../toast-message/toast-message';
 @Component({
@@ -15,79 +22,86 @@ import { ToastMessage } from '../toast-message/toast-message';
 export class Register {
   userForm: FormGroup;
 
-  phoneNumberId: FormControl;
+  fullName: FormControl;
+  phoneNumber: FormControl;
+  email: FormControl;
+  idCard: FormControl;
   password: FormControl;
   businessName: FormControl;
-  ownerName: FormControl;
-  email: FormControl;
   confirmPassword: FormControl;
+  businessPhoneNumber: FormControl;
   terms: FormControl;
 
   error: boolean = false;
-  errorMessage: string = "";
+  errorMessage: string = '';
 
-
-  constructor(private registerService: RegisterService, private router: Router) {
-    this.businessName = new FormControl('', Validators.required);
-    this.ownerName = new FormControl('', Validators.required);
-    this.phoneNumberId = new FormControl('', Validators.required);
-    this.email = new FormControl('', [
-      Validators.required,
-      Validators.email
-    ]);
+  constructor(
+    private registerService: RegisterService,
+    private router: Router,
+  ) {
+    this.fullName = new FormControl('');
+    this.phoneNumber = new FormControl('', Validators.required);
+    this.email = new FormControl('', [Validators.required, Validators.email]);
+    this.idCard = new FormControl('', Validators.required);
     this.password = new FormControl('', Validators.required);
+    this.businessName = new FormControl('', Validators.required);
+    this.businessPhoneNumber = new FormControl('', Validators.required);
     this.confirmPassword = new FormControl('', Validators.required);
     this.terms = new FormControl(false, Validators.requiredTrue);
 
     this.userForm = new FormGroup({
-      businessName: this.businessName,
-      ownerName: this.ownerName,
-      phoneNumberId: this.phoneNumberId,
+      fullName: this.fullName,
+      phoneNumber: this.phoneNumber,
       email: this.email,
+      idCard: this.idCard,
       password: this.password,
+      businessName: this.businessName,
+      businessPhoneNumber: this.businessPhoneNumber,
       confirmPassword: this.confirmPassword,
-      terms: this.terms
+      terms: this.terms,
     });
   }
 
   userRegister() {
-
-    const passwordConfir = this.userForm.get("confirmPassword")?.value;
-    const password = this.userForm.get("password")?.value;
+    const passwordConfir = this.userForm.get('confirmPassword')?.value;
+    const password = this.userForm.get('password')?.value;
 
     if (passwordConfir != password) {
+      this.errorMessage = 'Las contraseñas no coinciden';
       this.error = true;
-      this.errorMessage = "Las contraseñas no coinciden";
-
-      setTimeout(() => {
-        this.error = false;
-      }, 4000);
 
       return;
     }
 
-    const payload: UserPayload = {
-      businessName: this.userForm.get("businessName")?.value,
-      ownerName: this.userForm.get("ownerName")?.value,
-      phoneNumberId: this.userForm.get("phoneNumberId")?.value,
-      email: this.userForm.get("email")?.value,
-      password: this.userForm.get("password")?.value
-    }
+    const payload: RegisterRequest = {
+      fullName: this.userForm.get('fullName')?.value,
+      phoneNumber: this.userForm.get('phoneNumber')?.value,
+      email: this.userForm.get('email')?.value,
+      idCard: this.userForm.get('idCard')?.value,
+      password: this.userForm.get('password')?.value,
+      businessName: this.userForm.get('businessName')?.value,
+      businessPhoneNumber: this.userForm.get('businessPhoneNumber')?.value,
+    };
 
     this.registerService.register(payload).subscribe({
       next: (message) => {
-        alert(message);
+        alert(message.value);
         this.router.navigate(['/login']);
       },
-      error: () => {
-        this.error = true;
-        this.errorMessage = "Ocurrio un error insesperado, por favor contactate al numero 3111231234 para darle manejo";
-        setTimeout(() => {
-        this.error = false;
-      }, 4000);
+      error: (err) => {
+        const backendError = err.error;
+        let mensajeFinal = '';
 
-        return;
+        if (backendError && typeof backendError === 'object') {
+          const keys = Object.keys(backendError);
+          mensajeFinal = keys.length > 0 ? backendError[keys[0]] : 'Error de validación';
+        } else if (typeof backendError === 'string') {
+          mensajeFinal = backendError;
+        }
+
+        this.errorMessage = mensajeFinal;
+        this.error = true;
       }
-    })
+    });
   }
 }

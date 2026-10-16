@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UserPayload } from '../../model/interfaces'
+import { RegisterRequest } from '../../model/interfaces'
 
 @Injectable({ providedIn: 'root' })
 export class RegisterService {
@@ -9,7 +9,7 @@ export class RegisterService {
 
   constructor(private http: HttpClient) {}
 
-  register(payload: UserPayload): Observable<any> {
+  register(payload: RegisterRequest): Observable<any> {
     return this.http.post(this.registerUrl, payload);
   }
 }

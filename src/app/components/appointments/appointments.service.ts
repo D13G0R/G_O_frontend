@@ -18,7 +18,7 @@ export class AppointmentsService {
 
   constructor(private http: HttpClient, private tokenService: TokenService) { }
 
-  getAppointments(businessId: number | null) {
+  getAppointments() {
 
     const token = this.tokenService.getToken();
 
@@ -26,7 +26,7 @@ export class AppointmentsService {
       "Authorization": `Bearer ${ token }`
     })
 
-    return this.http.get<Appointment[]>(`${ this.URL_API }/get/${ businessId }`, { headers });
+    return this.http.get<Appointment[]>(`${ this.URL_API }/get`, { headers });
 
   }
 

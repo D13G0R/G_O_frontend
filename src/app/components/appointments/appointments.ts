@@ -72,8 +72,7 @@ export class Appointments implements OnInit {
     this.technicianId = new FormControl("");
 
     this.appointmentGroup = new FormGroup({
-      businessId: this.businessIdControl,
-      sessionId: this.sessionId,
+
       customerPhone: this.customerPhone,
       customerName: this.customerName,
       applianceType: this.applianceType,
@@ -82,7 +81,7 @@ export class Appointments implements OnInit {
       appointmentDate: this.appointmentDate,
       appointmentTime: this.appointmentTime,
       status: this.status,
-      technicianId: this.technicianId,
+
     })
 
     this.editAppointmentGroup = new FormGroup({
@@ -100,14 +99,13 @@ export class Appointments implements OnInit {
 
   ngOnInit(): void {
 
-    this.businessId = this.authService.getBusinessId();
-
-    this.appointmentsService.getAppointments(this.businessId).subscribe({
+    this.appointmentsService.getAppointments().subscribe({
       next: (data) => {
         
         this.appointmentsService.appointments.set(data);
 
       }, error: (error) => {
+        this.closeModal();
         this.errorAppointment = true;
         this.errorMessageAppointment = "Ha ocurrido un error inesperado" + error;
 
@@ -121,13 +119,13 @@ export class Appointments implements OnInit {
     const businessId = this.authService.getBusinessId();
 
     if (!businessId || isNaN(businessId) || businessId <= 0) {
-      throw new Error("No se puede crear la cita ¿ya te logeaste?")
+      this.closeModal();
+      this.errorAppointment = true;
+      this.errorMessageAppointment = "No se puede crear la cita ¿ya te logeaste?";
+      return;
     }
-
-    alert(businessId);
     const payload: AppointmentCreate = {
 
-      businessId: businessId,
       sessionId: "manual",
       customerPhone: this.appointmentGroup.get("customerPhone")?.value,
       customerName: this.appointmentGroup.get("customerName")?.value,
@@ -137,7 +135,7 @@ export class Appointments implements OnInit {
       appointmentDate: this.appointmentGroup.get("appointmentDate")?.value,
       appointmentTime: this.appointmentGroup.get("appointmentTime")?.value,
       status: this.appointmentGroup.get("status")?.value,
-      technicianId: this.appointmentGroup.get("technicianId")?.value
+      technicianId: 0
     }
 
     this.appointmentsService.createAppointment(payload).subscribe({
@@ -155,6 +153,7 @@ export class Appointments implements OnInit {
         this.appointmentGroup.reset()
       },
       error: (error) => {
+        this.closeModal();
         this.errorAppointment = true;
         this.errorMessageAppointment = "No se pudo crear la cita";
       }

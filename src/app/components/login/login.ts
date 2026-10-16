@@ -14,16 +14,16 @@ export class Login {
 
   loginForm: FormGroup;
 
-  phoneNumber: FormControl;
+  email: FormControl;
   password: FormControl;
 
   constructor(private loginService: LoginService, private router: Router) {
 
-    this.phoneNumber = new FormControl("");
+    this.email = new FormControl("");
     this.password = new FormControl("");
 
     this.loginForm = new FormGroup({
-      phoneNumber: this.phoneNumber,
+      email: this.email,
       password: this.password
     })
   }
@@ -32,7 +32,7 @@ export class Login {
   login() {
 
     const payload: LoginPayload = {
-      phoneNumber: this.loginForm.get("phoneNumber")?.value,
+      email: this.loginForm.get("email")?.value,
       password: this.loginForm.get("password")?.value
     }
 
