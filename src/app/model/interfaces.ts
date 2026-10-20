@@ -26,7 +26,7 @@ export interface AppointmentCreate {
   appointmentDate: string; // Formato "YYYY-MM-DD"
   appointmentTime: string; // Formato "HH:mm:ss" o "HH:mm"
   status: string;
-technicianId?: number;
+  technicianId?: number;
 }
 
 export interface AppointmentUpdateInterface {
@@ -86,4 +86,17 @@ export interface BusinessConfigurationUpdate {
     businessRules?: string[];
     systemPrompt?: string;
     maxParallelAppointments?: number;
+}
+
+export interface TechnicianInterface {
+    id: number;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    idCard: string;
+    photo: string;
+    boss: number;
+    workAt: number;
+    createdAt: string;
+    updatedAt: string;
 }

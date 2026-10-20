@@ -18,6 +18,7 @@ import { BusinessConfigurationService } from './business-configuration.service';
   styleUrl: './business-configuration.css',
 })
 export class BusinessConfiguration implements OnInit {
+  
   readonly configurationForm = new FormGroup({
     services: new FormControl('', { nonNullable: true }),
     coverageAreas: new FormControl('', { nonNullable: true }),

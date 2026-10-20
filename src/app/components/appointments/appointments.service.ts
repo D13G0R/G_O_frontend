@@ -18,7 +18,7 @@ export class AppointmentsService {
 
   constructor(private http: HttpClient, private tokenService: TokenService) { }
 
-  getAppointments() {
+  getAppointments(): Observable<Appointment[]> {
 
     const token = this.tokenService.getToken();
 
@@ -30,7 +30,7 @@ export class AppointmentsService {
 
   }
 
-  createAppointment(payload: AppointmentCreate): Observable<any> {
+  createAppointment(payload: AppointmentCreate): Observable<Appointment> {
 
     const token = this.tokenService.getToken();
 
@@ -38,7 +38,7 @@ export class AppointmentsService {
       "Authorization": `Bearer ${ token }`
     })
 
-    return this.http.post<AppointmentCreate>(`${ this.URL_API }/create`, payload, { headers })
+    return this.http.post<Appointment>(`${ this.URL_API }/create`, payload, { headers })
 
   }
 
