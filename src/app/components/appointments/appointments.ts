@@ -1,12 +1,13 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { AppointmentsService } from './appointments.service';
 import { AuthService } from '../../service/Auth/auth.service';
 import { ToastMessage } from '../toast-message/toast-message';
-import { FormControl, FormGroup, ɵInternalFormsSharedModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ɵInternalFormsSharedModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TokenService } from '../../service/token/token';
 import { Appointment, AppointmentCreate, AppointmentUpdateInterface } from '../../model/interfaces';
-import { App } from '../../app';
 import { Dashboard } from '../dashboard/dashboard';
+import { TechnicianService } from '../technician/technician.service';
+import { App } from '../../app';
 
 @Component({
   selector: 'app-appointments',
@@ -15,119 +16,93 @@ import { Dashboard } from '../dashboard/dashboard';
   styleUrl: './appointments.css',
 })
 export class Appointments implements OnInit {
-
-  businessId: number | null = null;
+  
   showModal: boolean = false;
   showEditModal: boolean = false;
   showDeleteModal: boolean = false;
   selectedAppointment: Appointment | null = null;
   errorAppointment: boolean = false;
   errorMessageAppointment: string = "";
-
+  
   editAppointmentGroup: FormGroup;
   appointmentGroup: FormGroup;
-  businessIdControl: FormControl;
-  sessionId: FormControl;
-  customerPhone: FormControl;
-  customerName: FormControl;
-  applianceType: FormControl;
-  problemDescription: FormControl;
-  address: FormControl;
-  appointmentDate: FormControl;
-  appointmentTime: FormControl;
-  status: FormControl;
-  technicianId: FormControl;
+  
+  private technicianService = inject(TechnicianService)
+  technicians = this.technicianService.technicians;
+  
+  constructor(public appointmentsService: AppointmentsService, private authService: AuthService, private tokenService: TokenService, private fb: FormBuilder) {
+    
+    this.appointmentGroup = this.fb.group({
+      
+      customerPhone: [''],
+      customerName: [''],
+      applianceType: [''],
+      problemDescription: [''],
+      address: [''],
+      appointmentDate: [''],
+      appointmentTime: [''],
+      status: [''],
+      technicianId: ['']
+    });
+    
+    this.editAppointmentGroup = this.fb.group({
+      customerPhone: [''],
+      customerName: [''],
+      applianceType: [''],
+      appointmentDate: [''],
+      appointmentTime: [''],
+      status: [''],
+      technicianId: [''],
+      address: [''],
+      problemDescription: ['']
+    });
+  }
+  
+  
+  ngOnInit(): void {
+    
+    this.appointmentsService.getAppointments().subscribe({
+      next: (data: Appointment[]) => {
+        
+        this.appointmentsService.appointments.set(data);
+        
+      }, error: (error) => {
+        this.closeModal();
+        this.errorAppointment = true;
+        this.errorMessageAppointment = "Ha ocurrido un error inesperado" + error;
+        
+      }
+    })
 
+    this.technicianService.getTechnicians();
+
+
+    
+  };
+  
   selectedStatusFilter = signal<string>("all");
-
+  
   filteredAppointments = computed(() => {
-
+    
     const currentData = this.appointmentsService.appointments();
     const currentStatusFilter = this.selectedStatusFilter();
     
     if ( currentStatusFilter === "all") {
       return currentData;
     }
-
+  
     return currentData.filter(appointment => appointment.status === currentStatusFilter);
   })
-
+  
   setFilteringByStatus(requiredStatusFilter: string){
     this.selectedStatusFilter.set(requiredStatusFilter);
   }
 
 
-  constructor(public appointmentsService: AppointmentsService, private authService: AuthService, private tokenService: TokenService) {
-
-    this.businessIdControl = new FormControl("");
-    this.sessionId = new FormControl("");
-    this.customerPhone = new FormControl("");
-    this.customerName = new FormControl("");
-    this.applianceType = new FormControl("");
-    this.problemDescription = new FormControl("");
-    this.address = new FormControl("");
-    this.appointmentDate = new FormControl("");
-    this.appointmentTime = new FormControl("");
-    this.status = new FormControl("");
-    this.technicianId = new FormControl("");
-
-    this.appointmentGroup = new FormGroup({
-      businessId: this.businessIdControl,
-      sessionId: this.sessionId,
-      customerPhone: this.customerPhone,
-      customerName: this.customerName,
-      applianceType: this.applianceType,
-      problemDescription: this.problemDescription,
-      address: this.address,
-      appointmentDate: this.appointmentDate,
-      appointmentTime: this.appointmentTime,
-      status: this.status,
-      technicianId: this.technicianId,
-    })
-
-    this.editAppointmentGroup = new FormGroup({
-      customerPhone: new FormControl<string>(""),
-      customerName: new FormControl<string>(""),
-      applianceType: new FormControl<string>(""),
-      appointmentDate: new FormControl<string>(""),
-      appointmentTime: new FormControl<string>(""),
-      status: new FormControl<string>(""),
-      technicianId: new FormControl<number>(0),
-      address: new FormControl<string>(""),
-      problemDescription: new FormControl<string>("")
-    });
-  }
-
-  ngOnInit(): void {
-
-    this.businessId = this.authService.getBusinessId();
-
-    this.appointmentsService.getAppointments(this.businessId).subscribe({
-      next: (data) => {
-        
-        this.appointmentsService.appointments.set(data);
-
-      }, error: (error) => {
-        this.errorAppointment = true;
-        this.errorMessageAppointment = "Ha ocurrido un error inesperado" + error;
-
-      }
-    })
-
-  }
-
   createAppointment() {
-
-    const businessId = this.authService.getBusinessId();
-
-    if (!businessId || isNaN(businessId) || businessId <= 0) {
-      throw new Error("No se puede crear la cita ¿ya te logeaste?")
-    }
-
-    alert(businessId);
+    
     const payload: AppointmentCreate = {
-
-      businessId: businessId,
+      
       sessionId: "manual",
       customerPhone: this.appointmentGroup.get("customerPhone")?.value,
       customerName: this.appointmentGroup.get("customerName")?.value,
@@ -139,22 +114,23 @@ export class Appointments implements OnInit {
       status: this.appointmentGroup.get("status")?.value,
       technicianId: this.appointmentGroup.get("technicianId")?.value
     }
-
+    
     this.appointmentsService.createAppointment(payload).subscribe({
-
+      
       next: (createdAppointment: Appointment) => {
-
+        
         this.appointmentsService.appointments.update(currentAppointments => [
           ...currentAppointments,
           createdAppointment
         ])
 
         alert("Cita creada exitosamente" + createdAppointment.id);
-
+        
         this.closeModal();
         this.appointmentGroup.reset()
       },
       error: (error) => {
+        this.closeModal();
         this.errorAppointment = true;
         this.errorMessageAppointment = "No se pudo crear la cita";
       }
@@ -162,18 +138,18 @@ export class Appointments implements OnInit {
   }
 
   UpdateAppointment(): void {
-
+    
     if (!this.selectedAppointment) {
       return;
     }
-
+    
     const data: AppointmentUpdateInterface = this.editAppointmentGroup.getRawValue();
-
+    
     const appointment: Appointment = {
       ...this.selectedAppointment,
       ...data
     }
-
+    
       this.appointmentsService.updateAppointment(appointment).subscribe({
         next: (updatedAppointment) => {
 
@@ -187,16 +163,16 @@ export class Appointments implements OnInit {
           this.errorMessageAppointment = "No se pudo actualizar la cita" + error;
         }
       })
-  }
+    }
 
   confirmDeleteAppointment(): void {
-
+    
     if (!this.selectedAppointment) {
       return;
     }
-
+    
     const idToDelete = this.selectedAppointment.id;
-
+    
     this.appointmentsService.deleteAppointment(idToDelete).subscribe({
       next: () => {
         
@@ -216,7 +192,7 @@ export class Appointments implements OnInit {
   }
 
   //Open and close modals Create, Edit, Delete
-
+  
   openModal() {
     this.showModal = true;
   }

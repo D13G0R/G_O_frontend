@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 @Component({
   selector: 'app-toast-message',
@@ -6,30 +14,49 @@ import { Component, EventEmitter, Input, Output, SimpleChanges} from '@angular/c
   templateUrl: './toast-message.html',
   styleUrl: './toast-message.css',
 })
-export class ToastMessage {
+export class ToastMessage implements OnChanges, OnDestroy {
+  @Input() error = false;
+  @Input() errorMessage = '';
 
-  @Input()
-  error: boolean = false;
-  @Input()
-  errorMessage: string = "";
+  @Output() errorChange = new EventEmitter<boolean>();
+  @Output() errorMessageChange = new EventEmitter<string>();
 
-  @Output()
-  errorChange = new EventEmitter<boolean>();
-  @Output()
-  errorMessageChange = new EventEmitter<string>();
+  visible = false;
+  private timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-  // Se ejecuta automáticamente cada vez que 'error' pasa a true 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['error'] && this.error) {
-      // Espera 3 segundos y oculta el toast
-      setTimeout(() => {
-        this.closeToast();
-      }, 3000);
+    if (!this.error) {
+      this.visible = false;
+      this.clearTimeout();
+      return;
+    }
+
+    this.visible = true;
+    if (changes['error'] || changes['errorMessage']) {
+      this.startTimeout();
     }
   }
 
-  closeToast(){
+  ngOnDestroy() {
+    this.clearTimeout();
+  }
+
+  closeToast() {
+    this.visible = false;
+    this.clearTimeout();
     this.errorChange.emit(false);
-    this.errorMessageChange.emit("");
+    this.errorMessageChange.emit('');
+  }
+
+  private startTimeout() {
+    this.clearTimeout();
+    this.timeoutId = setTimeout(() => this.closeToast(), 3000);
+  }
+
+  private clearTimeout() {
+    if (this.timeoutId !== undefined) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = undefined;
+    }
   }
 }

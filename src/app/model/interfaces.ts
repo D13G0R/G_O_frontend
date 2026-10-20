@@ -16,7 +16,7 @@ export interface Appointment {
 
 }
 export interface AppointmentCreate {
-  businessId: number;
+
   sessionId: string;
   customerPhone: string;
   customerName: string;
@@ -26,7 +26,7 @@ export interface AppointmentCreate {
   appointmentDate: string; // Formato "YYYY-MM-DD"
   appointmentTime: string; // Formato "HH:mm:ss" o "HH:mm"
   status: string;
-  technicianId: number;
+  technicianId?: number;
 }
 
 export interface AppointmentUpdateInterface {
@@ -42,25 +42,26 @@ export interface AppointmentUpdateInterface {
 
 }
 
-export interface UserPayload {
-    // 'Long' se traduce como 'number'. Es opcional (?) porque el backend lo genera automáticamente.
+export interface RegisterRequest {
+    fullName:string;
+    phoneNumber: string;
+    email: string;
+    idCard : string
+    password?: string;
     businessName: string;
-    ownerName: string;        // Opcional porque en Java no tiene 'nullable = false', por lo que puede ser nulo.
-    phoneNumberId: string;
-    email: string;             // Se maneja como un string plano en el frontend.
-    password?: string;         // Opcional por seguridad (muchas veces el backend no lo devuelve al consultar).
+    businessPhoneNumber: string;
 }
 
 export interface LoginPayload {
 
-    phoneNumber: string;
+    email: string;
     password: string;
 }
 
 export interface AuthInformation {
     
     phoneNumberId : string;
-    businessId : number;
+    businessId : number; // 'Long' se traduce como 'number'. Es opcional (?) porque el backend lo genera automáticamente.
     ownerName : string;
     email : string;
     businessName : string;
@@ -79,10 +80,23 @@ export interface BusinessContext {
 
 // Solo se envían los campos que se desean cambiar; los omitidos se conservan.
 export interface BusinessConfigurationUpdate {
-    services?: string[];
+    services?: string[]; // Opcional porque en Java no tiene 'nullable = false', por lo que puede ser nulo.
     coverageAreas?: string[];
     workingHours?: Record<string, string>;
     businessRules?: string[];
     systemPrompt?: string;
     maxParallelAppointments?: number;
+}
+
+export interface TechnicianInterface {
+    id: number;
+    fullName: string;
+    phoneNumber: string;
+    email: string;
+    idCard: string;
+    photo: string;
+    boss: number;
+    workAt: number;
+    createdAt: string;
+    updatedAt: string;
 }

@@ -4,11 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class TokenService {
+  TOKEN_KEY = 'token';
 
-  TOKEN_KEY = "token";
-
-
-saveToken(token: string): void {
+  saveToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
 
@@ -20,7 +18,7 @@ saveToken(token: string): void {
     localStorage.removeItem(this.TOKEN_KEY);
   }
 
-    isTokenExpired(): boolean {
+  isTokenExpired(): boolean {
     const token = this.getToken();
 
     if (!token) {
@@ -33,7 +31,6 @@ saveToken(token: string): void {
       const expiration = payload.exp * 1000;
 
       return Date.now() >= expiration;
-
     } catch {
       return true;
     }
