@@ -1,4 +1,11 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnInit,
+  signal,
+  computed,
+  inject,
+} from '@angular/core';
 import { AppointmentsService } from './appointments.service';
 import { AuthService } from '../../service/Auth/auth.service';
 import { ToastMessage } from '../toast-message/toast-message';
@@ -30,7 +37,13 @@ export class Appointments implements OnInit {
   private technicianService = inject(TechnicianService)
   technicians = this.technicianService.technicians;
   
-  constructor(public appointmentsService: AppointmentsService, private authService: AuthService, private tokenService: TokenService, private fb: FormBuilder) {
+  constructor(
+    public appointmentsService: AppointmentsService,
+    private authService: AuthService,
+    private tokenService: TokenService,
+    private fb: FormBuilder,
+    private changeDetectorRef: ChangeDetectorRef,
+  ) {
     
     this.appointmentGroup = this.fb.group({
       
@@ -69,7 +82,8 @@ export class Appointments implements OnInit {
       }, error: (error) => {
         this.closeModal();
         this.errorAppointment = true;
-        this.errorMessageAppointment = "Ha ocurrido un error inesperado" + error;
+        this.errorMessageAppointment = "Ha ocurrido un error inesperado: " + error.error.message;
+        this.changeDetectorRef.markForCheck();
         
       }
     })
@@ -128,11 +142,13 @@ export class Appointments implements OnInit {
         
         this.closeModal();
         this.appointmentGroup.reset()
+        this.changeDetectorRef.markForCheck();
       },
       error: (error) => {
         this.closeModal();
+        this.errorMessageAppointment = error.error.message;
         this.errorAppointment = true;
-        this.errorMessageAppointment = "No se pudo crear la cita";
+        this.changeDetectorRef.markForCheck();
       }
     })
   }
@@ -157,10 +173,12 @@ export class Appointments implements OnInit {
             currentAppointments.map(appointment => appointment.id == updatedAppointment.id ? updatedAppointment : appointment
             ))
           this.closeEditModal();
+          this.changeDetectorRef.markForCheck();
         },
         error: (error) => {
           this.errorAppointment = true;
           this.errorMessageAppointment = "No se pudo actualizar la cita" + error;
+          this.changeDetectorRef.markForCheck();
         }
       })
     }
@@ -181,10 +199,12 @@ export class Appointments implements OnInit {
         )
 
         this.closeDeleteModal();
+        this.changeDetectorRef.markForCheck();
       },
       error: (error) => {
+        this.errorMessageAppointment = "No se pudo eliminar la cita: " + error.error.message;
         this.errorAppointment = true;
-        this.errorMessageAppointment = "No se pudo eliminar la cita" + error;
+        this.changeDetectorRef.markForCheck();
       }
     })
 
