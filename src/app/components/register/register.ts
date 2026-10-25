@@ -85,7 +85,7 @@ export class Register {
 
     this.registerService.register(payload).subscribe({
       next: (message) => {
-        alert(message.value);
+        alert(message.message.value);
         this.router.navigate(['/login']);
       },
       error: (err) => {

@@ -1,0 +1,710 @@
+<main class="min-h-screen bg-surface text-on-surface pb-10">
+  @if (successMessage()) {
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-[80] w-[calc(100%-2rem)] max-w-md">
+      <div class="flex items-start gap-2.5 rounded-2xl border border-tertiary/30 bg-tertiary-container/95 px-4 py-3 shadow-lg backdrop-blur">
+        <span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+        <p class="text-body-sm font-semibold text-on-tertiary-container">{{ successMessage() }}</p>
+      </div>
+    </div>
+  }
+
+  <header
+    class="sticky top-0 z-40 bg-surface/90 backdrop-blur border-b border-outline-variant/60"
+  >
+    <div class="max-w-xl md:max-w-3xl lg:max-w-6xl mx-auto h-16 px-4 md:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
+            engineering
+          </span>
+        </div>
+
+        <div>
+          <p class="text-body-sm font-bold text-on-surface leading-tight">ProService</p>
+          <p class="text-[12px] font-medium text-on-surface-variant leading-tight">
+            Vista técnico
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant"
+          aria-label="Notificaciones"
+        >
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+
+        <div
+          class="w-10 h-10 rounded-full border-2 border-outline-variant/60 bg-primary-fixed flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined text-primary">person</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-xl md:max-w-3xl lg:max-w-6xl mx-auto px-4 md:px-6 lg:px-8 pt-6">
+    <div class="lg:flex lg:items-end lg:justify-between lg:gap-8">
+      <div>
+        <p class="text-label-sm font-semibold text-primary uppercase tracking-wider">
+          {{ todayLabel }}
+        </p>
+
+        <h1 class="text-[28px] md:text-[32px] leading-tight font-semibold text-on-surface mt-1">
+          Hola, {{ displayName() }}
+        </h1>
+
+        <p class="text-body-sm md:text-body-md text-on-surface-variant mt-1.5 max-w-2xl">
+          Revisa tus servicios asignados, inicia el cronómetro al llegar y finaliza
+          la cita al terminar.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="toggleShift()"
+        class="w-full lg:w-72 lg:shrink-0 mt-5 lg:mt-0 flex items-center gap-3 px-4 py-3 rounded-2xl border transition-colors"
+        [class]="
+          isOnShift()
+            ? 'bg-tertiary-container/40 text-tertiary border-tertiary/30'
+            : 'bg-surface-container text-on-surface-variant border-outline-variant'
+        "
+        [attr.aria-pressed]="isOnShift()"
+      >
+        <span class="material-symbols-outlined text-[22px]">schedule</span>
+
+        <span class="flex flex-col items-start">
+          <span class="text-label-md font-semibold">
+            {{ isOnShift() ? 'Estás en turno' : 'Fuera de turno' }}
+          </span>
+          <span class="text-[12px] font-medium opacity-80">
+            {{ isOnShift() ? 'Toca para pausar tu turno' : 'Toca para iniciar tu turno' }}
+          </span>
+        </span>
+
+        <span
+          class="ml-auto w-3 h-3 rounded-full"
+          [class]="isOnShift() ? 'bg-tertiary' : 'bg-outline'"
+        ></span>
+      </button>
+    </div>
+
+    @if (!isTechnician()) {
+      <div class="mt-4 rounded-2xl border border-primary/20 bg-primary-fixed/40 px-4 py-3 flex items-start gap-2.5">
+        <span class="material-symbols-outlined text-primary text-[20px]">visibility</span>
+        <p class="text-body-sm text-on-surface">
+          Estás viendo las citas como dueño. Para reportar pagos debe iniciar sesión un técnico.
+        </p>
+      </div>
+    }
+
+    @if (loadError()) {
+      <div class="mt-4 rounded-2xl border border-error/30 bg-error-container/40 px-4 py-3 flex items-start justify-between gap-3">
+        <p class="text-body-sm font-medium text-error">{{ loadError() }}</p>
+        <button type="button" (click)="loadAppointments()" class="text-label-sm font-bold text-error underline">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <div class="grid grid-cols-3 gap-2 md:gap-3 mt-4 lg:mt-6">
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+          Citas
+        </p>
+        <p class="text-[24px] leading-tight font-semibold text-on-surface mt-1">
+          {{ tabCounts().all }}
+        </p>
+      </div>
+
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+          Completadas
+        </p>
+        <p class="text-[24px] leading-tight font-semibold text-on-surface mt-1">
+          {{ completedCount() }}
+        </p>
+      </div>
+
+      <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+          En curso
+        </p>
+        <p class="text-[24px] leading-tight font-semibold text-on-surface mt-1">
+          {{ runningCount() }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar mt-6 pb-1 md:flex-wrap md:overflow-visible">
+      @for (tab of tabs; track tab.id) {
+        <button
+          type="button"
+          (click)="selectTab(tab.id)"
+          class="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-label-sm font-semibold border transition-colors"
+          [class]="
+            selectedTab() === tab.id
+              ? 'bg-primary text-on-primary border-primary'
+              : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant/70'
+          "
+        >
+          {{ tab.label }}
+
+          <span
+            class="min-w-5 px-1 py-0.5 rounded-full text-[11px] font-bold text-center"
+            [class]="
+              selectedTab() === tab.id
+                ? 'bg-on-primary/20 text-on-primary'
+                : 'bg-surface-container text-on-surface-variant'
+            "
+          >
+            {{ tabCounts()[tab.id] }}
+          </span>
+        </button>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="flex items-center justify-center gap-2 py-16 text-on-surface-variant">
+        <span class="material-symbols-outlined animate-spin">progress_activity</span>
+        <span class="text-body-sm font-medium">Cargando tus citas...</span>
+      </div>
+    } @else if (displayedAppointments().length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 mt-5">
+        @for (appointment of displayedAppointments(); track appointment.id) {
+          <article
+            class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] p-4"
+            [class.ring-2]="isStopwatchRunning(appointment.id)"
+            [class.ring-tertiary]="isStopwatchRunning(appointment.id)"
+          >
+            <div class="flex items-start justify-between gap-3">
+              <div class="bg-primary/5 px-3 py-1.5 rounded-xl text-primary text-[18px] font-semibold">
+                {{ formatTime(appointment.appointmentTime) }}
+              </div>
+
+              <div class="flex flex-col items-end gap-1">
+                <span
+                  [class]="
+                    'px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-tight ' +
+                    statusMeta(appointment.status).textClass +
+                    ' ' +
+                    (isStopwatchRunning(appointment.id)
+                      ? 'bg-tertiary-container text-on-tertiary-container'
+                      : 'bg-surface-container')
+                  "
+                >
+                  {{
+                    isStopwatchRunning(appointment.id)
+                      ? 'En curso'
+                      : statusMeta(appointment.status).label
+                  }}
+                </span>
+
+                @if (paymentMeta(appointment); as payment) {
+                  <span
+                    [class]="'px-2 py-0.5 rounded-full text-[10px] font-bold border ' + payment.badgeClass"
+                  >
+                    {{ payment.label }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <h3 class="text-[18px] font-semibold text-on-surface mt-3">
+              {{ appointment.applianceType }}
+            </h3>
+
+            <p class="text-body-sm font-medium text-on-surface-variant mt-0.5">
+              {{ appointment.customerName }}
+            </p>
+
+            <div class="flex items-start gap-2 text-body-sm text-on-surface-variant mt-2">
+              <span class="material-symbols-outlined text-[18px] text-on-surface-variant/70">
+                location_on
+              </span>
+              <span class="leading-snug">{{ appointment.address }}</span>
+            </div>
+
+            @if (appointment.paymentStatus === 'REJECTED') {
+              <div class="mt-3 rounded-xl bg-error-container/40 border border-error/20 px-3 py-2.5">
+                <p class="text-[11px] font-bold uppercase tracking-wide text-error">Pago rechazado</p>
+                <p class="text-[12px] text-on-surface mt-1 leading-snug">
+                  {{ appointment.paymentObservation || 'El negocio rechazó el comprobante enviado.' }}
+                </p>
+              </div>
+            }
+
+            @if (appointment.paymentStatus === 'PENDING') {
+              <div class="mt-3 rounded-xl bg-primary-fixed/40 border border-primary/20 px-3 py-2.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-[18px]">hourglass_top</span>
+                <p class="text-[12px] font-medium text-on-surface">
+                  Reportaste {{ formatCurrency(appointment.paymentAmount) }}. Esperando validación.
+                </p>
+              </div>
+            }
+
+            @if (appointment.paymentStatus === 'APPROVED') {
+              <div class="mt-3 rounded-xl bg-tertiary-container/30 border border-tertiary/20 px-3 py-2.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-tertiary text-[18px]">verified</span>
+                <p class="text-[12px] font-medium text-on-surface">Pago aprobado por el negocio.</p>
+              </div>
+            }
+
+            @if (isStopwatchRunning(appointment.id)) {
+              <div
+                class="mt-4 rounded-xl bg-tertiary-container/30 border border-tertiary/20 px-3 py-2.5 flex items-center justify-between"
+              >
+                <div class="flex items-center gap-1.5 text-tertiary">
+                  <span class="material-symbols-outlined text-[18px]">timer</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider">
+                    En sitio
+                  </span>
+                </div>
+
+                <span class="timer-digits text-[18px] font-bold text-tertiary">
+                  {{ formatDuration(elapsedMs(appointment.id)) }}
+                </span>
+              </div>
+            }
+
+            <div class="flex items-center gap-2 mt-4">
+              @if (canStart(appointment)) {
+                <button
+                  type="button"
+                  (click)="startStopwatch(appointment.id)"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+                  Iniciar
+                </button>
+              }
+
+              @if (isStopwatchRunning(appointment.id) && canReportPayment(appointment)) {
+                <button
+                  type="button"
+                  (click)="openFinishModal(appointment)"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-tertiary text-on-primary text-label-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <span class="material-symbols-outlined text-[18px]">check</span>
+                  Finalizar
+                </button>
+              }
+
+              @if (!isStopwatchRunning(appointment.id) && canReportPayment(appointment) && (appointment.paymentStatus === 'REJECTED' || isCompleted(appointment))) {
+                <button
+                  type="button"
+                  (click)="openFinishModal(appointment)"
+                  class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <span class="material-symbols-outlined text-[18px]">payments</span>
+                  {{ appointment.paymentStatus === 'REJECTED' ? 'Reenviar pago' : 'Reportar pago' }}
+                </button>
+              }
+
+              <button
+                type="button"
+                (click)="openDetailModal(appointment)"
+                class="px-3 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant text-label-sm font-semibold hover:bg-surface-container transition-colors"
+              >
+                Detalle
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div
+        class="bg-surface-container-lowest rounded-2xl border-2 border-dashed border-outline-variant/70 px-6 py-12 flex flex-col items-center text-center mt-5 md:max-w-xl md:mx-auto"
+      >
+        <div
+          class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant/60 mb-4"
+        >
+          <span class="material-symbols-outlined text-[28px]">event_busy</span>
+        </div>
+
+        <h3 class="text-[18px] font-semibold text-on-surface">
+          No tienes citas asignadas
+        </h3>
+
+        <p class="text-body-sm text-on-surface-variant max-w-xs mt-1.5">
+          Cuando el negocio te asigne un servicio aparecerá aquí con la fecha,
+          la hora y los datos del cliente.
+        </p>
+      </div>
+    }
+
+    <div
+      class="mt-6 rounded-2xl bg-primary-fixed/40 border border-primary/15 px-4 py-3.5 flex items-start gap-2.5"
+    >
+      <span class="material-symbols-outlined text-primary text-[20px]">lightbulb</span>
+
+      <div>
+        <p class="text-label-sm font-semibold text-on-surface">Consejo</p>
+        <p class="text-[12px] text-on-surface-variant mt-0.5 leading-snug">
+          Inicia el cronómetro al llegar al domicilio. El tiempo se conserva
+          aunque bloquees el teléfono y se detiene al finalizar el servicio.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  @if (finishTarget(); as appointment) {
+    <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+      <button
+        type="button"
+        (click)="closeFinishModal()"
+        class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
+        aria-label="Cerrar modal"
+      ></button>
+
+      <div
+        class="relative w-full sm:max-w-lg bg-surface-container-lowest rounded-t-3xl sm:rounded-2xl shadow-2xl border border-outline-variant/60 flex flex-col max-h-[92vh] overflow-hidden"
+      >
+        <div class="pt-3 flex justify-center sm:hidden">
+          <span class="w-10 h-1 rounded-full bg-outline-variant"></span>
+        </div>
+
+        <div class="p-5 border-b border-outline-variant/60 flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-11 h-11 rounded-xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-[22px]">task_alt</span>
+            </div>
+
+            <div>
+              <h3 class="text-[18px] font-bold text-on-surface">
+                {{ appointment.paymentStatus === 'REJECTED' ? 'Reenviar comprobante' : 'Reportar pago' }}
+              </h3>
+              <p class="text-[12px] text-on-surface-variant mt-0.5">
+                Cita #{{ appointment.id }} · {{ appointment.applianceType }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeFinishModal()"
+            class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+            aria-label="Cerrar"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-4 overflow-y-auto">
+          @if (appointment.paymentStatus === 'REJECTED' && appointment.paymentObservation) {
+            <div class="rounded-xl bg-error-container/40 border border-error/20 px-4 py-3">
+              <p class="text-[11px] font-bold uppercase tracking-wide text-error">Observación del negocio</p>
+              <p class="text-[12px] text-on-surface mt-1 leading-snug">{{ appointment.paymentObservation }}</p>
+            </div>
+          }
+
+          <div class="rounded-xl bg-surface-container-low px-4 py-3 flex items-center justify-between">
+            <span class="text-body-sm text-on-surface-variant">Tiempo registrado</span>
+            <span class="timer-digits text-[18px] font-bold text-on-surface">
+              {{ formatDuration(elapsedMs(appointment.id)) }}
+            </span>
+          </div>
+
+          <div>
+            <label for="paymentAmount" class="block text-label-sm font-semibold text-on-surface mb-1.5">
+              Valor cobrado
+            </label>
+            <div class="relative">
+              <span
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-body-sm"
+              >
+                $
+              </span>
+              <input
+                id="paymentAmount"
+                type="number"
+                min="1"
+                step="100"
+                placeholder="0"
+                [value]="amountInput()"
+                (input)="onAmountInput($event)"
+                class="w-full pl-7 pr-4 py-2.5 rounded-xl border border-outline-variant bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="paymentMethod" class="block text-label-sm font-semibold text-on-surface mb-1.5">
+              Método de pago
+            </label>
+            <select
+              id="paymentMethod"
+              [value]="paymentMethodInput()"
+              (change)="onMethodInput($event)"
+              class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            >
+              <option value="cash">Efectivo</option>
+              <option value="transfer">Transferencia</option>
+              <option value="card">Tarjeta</option>
+              <option value="nequi">Nequi</option>
+              <option value="daviplata">Daviplata</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="paymentReference" class="block text-label-sm font-semibold text-on-surface mb-1.5">
+              Referencia <span class="font-normal text-on-surface-variant">(opcional)</span>
+            </label>
+            <input
+              id="paymentReference"
+              type="text"
+              maxlength="100"
+              placeholder="Número de aprobación o transferencia"
+              [value]="referenceInput()"
+              (input)="onReferenceInput($event)"
+              class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label for="paymentEvidence" class="block text-label-sm font-semibold text-on-surface mb-1.5">
+              Comprobante de pago
+            </label>
+            <label
+              for="paymentEvidence"
+              class="flex flex-col items-center justify-center gap-1.5 w-full px-4 py-6 rounded-xl border-2 border-dashed cursor-pointer transition-colors"
+              [class]="evidenceError() ? 'border-error/50 bg-error-container/20' : 'border-outline-variant bg-surface-container-low hover:border-primary/50'"
+            >
+              <span class="material-symbols-outlined text-[28px] text-on-surface-variant">upload_file</span>
+              <span class="text-label-sm font-semibold text-on-surface text-center break-all">
+                {{ evidenceFileName() || 'Subir foto o PDF' }}
+              </span>
+              <span class="text-[11px] text-on-surface-variant text-center">
+                JPG, PNG, WEBP o PDF · máximo 10 MB
+              </span>
+            </label>
+            <input
+              id="paymentEvidence"
+              type="file"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
+              (change)="onEvidenceSelected($event)"
+              class="sr-only"
+            />
+
+            @if (evidenceError()) {
+              <p class="text-[12px] font-medium text-error mt-1.5">{{ evidenceError() }}</p>
+            }
+          </div>
+
+          @if (submitPaymentError()) {
+            <div class="rounded-xl bg-error-container/40 border border-error/20 px-4 py-3">
+              <p class="text-[12px] font-medium text-error">{{ submitPaymentError() }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="p-4 border-t border-outline-variant/60 flex items-center gap-2">
+          <button
+            type="button"
+            (click)="closeFinishModal()"
+            [disabled]="submittingPayment()"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant text-label-md font-semibold hover:bg-surface-container transition-colors disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            (click)="submitPayment()"
+            [disabled]="submittingPayment()"
+            class="flex-1 px-4 py-2.5 rounded-xl bg-tertiary text-on-primary text-label-md font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            @if (submittingPayment()) {
+              <span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+              Enviando...
+            } @else {
+              <span class="material-symbols-outlined text-[18px]">send</span>
+              Enviar pago
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (detailTarget(); as appointment) {
+    <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+      <button
+        type="button"
+        (click)="closeDetailModal()"
+        class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
+        aria-label="Cerrar modal"
+      ></button>
+
+      <div
+        class="relative w-full sm:max-w-xl bg-surface-container-lowest rounded-t-3xl sm:rounded-2xl shadow-2xl border border-outline-variant/60 flex flex-col max-h-[92vh] overflow-hidden"
+      >
+        <div class="pt-3 flex justify-center sm:hidden">
+          <span class="w-10 h-1 rounded-full bg-outline-variant"></span>
+        </div>
+
+        <div class="p-5 border-b border-outline-variant/60 flex items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-[18px] font-bold text-on-surface">Detalle de la cita</h3>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-primary-fixed text-primary">
+                #{{ appointment.id }}
+              </span>
+            </div>
+
+            <p class="text-[12px] text-on-surface-variant mt-0.5">
+              {{ formatDate(appointment.appointmentDate) }} ·
+              {{ formatTime(appointment.appointmentTime) }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeDetailModal()"
+            class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+            aria-label="Cerrar"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-4 overflow-y-auto">
+          <div class="flex items-center justify-between">
+            <span class="text-label-md font-semibold text-on-surface">Estado</span>
+            <span class="flex items-center gap-2">
+              <span
+                class="w-2 h-2 rounded-full"
+                [class]="statusMeta(appointment.status).dotClass"
+              ></span>
+              <span
+                class="text-label-md font-semibold"
+                [class]="statusMeta(appointment.status).textClass"
+              >
+                {{ statusMeta(appointment.status).label }}
+              </span>
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="rounded-xl bg-surface-container-low p-3.5">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Cliente
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ appointment.customerName }}
+              </p>
+              <p class="text-body-sm text-on-surface-variant">{{ appointment.customerPhone }}</p>
+            </div>
+
+            <div class="rounded-xl bg-surface-container-low p-3.5">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Servicio
+              </p>
+              <p class="text-body-md font-semibold text-on-surface mt-1">
+                {{ appointment.applianceType }}
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-surface-container-low p-3.5 sm:col-span-2">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Dirección
+              </p>
+              <p class="text-body-md text-on-surface mt-1 flex items-start gap-2">
+                <span class="material-symbols-outlined text-[20px] text-on-surface-variant/70">
+                  location_on
+                </span>
+                {{ appointment.address }}
+              </p>
+            </div>
+
+            <div class="rounded-xl bg-surface-container-low p-3.5 sm:col-span-2">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Descripción del problema
+              </p>
+              <p class="text-body-sm text-on-surface mt-1 leading-relaxed">
+                {{ appointment.problemDescription || 'Sin descripción registrada.' }}
+              </p>
+            </div>
+
+            @if (paymentMeta(appointment); as payment) {
+              <div class="rounded-xl bg-surface-container-low p-3.5 sm:col-span-2">
+                <div class="flex items-center justify-between gap-3">
+                  <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                    Pago
+                  </p>
+                  <span [class]="'px-2 py-0.5 rounded-full text-[10px] font-bold border ' + payment.badgeClass">
+                    {{ payment.label }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                  <div>
+                    <p class="text-[11px] text-on-surface-variant">Valor</p>
+                    <p class="text-body-sm font-semibold text-on-surface">
+                      {{ formatCurrency(appointment.paymentAmount) }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-[11px] text-on-surface-variant">Método</p>
+                    <p class="text-body-sm font-semibold text-on-surface capitalize">
+                      {{ appointment.paymentMethod || '—' }}
+                    </p>
+                  </div>
+                </div>
+
+                @if (appointment.paymentObservation) {
+                  <p class="text-[12px] text-on-surface mt-2 leading-snug">
+                    <span class="font-semibold">Observación:</span>
+                    {{ appointment.paymentObservation }}
+                  </p>
+                }
+
+                @if (appointment.paymentSubmittedAt) {
+                  <p class="text-[11px] text-on-surface-variant mt-1">
+                    Enviado: {{ formatDateTime(appointment.paymentSubmittedAt) }}
+                  </p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="p-4 border-t border-outline-variant/60 flex items-center gap-2">
+          <button
+            type="button"
+            (click)="closeDetailModal()"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant text-label-md font-semibold hover:bg-surface-container transition-colors"
+          >
+            Cerrar
+          </button>
+
+          @if (canStart(appointment)) {
+            <button
+              type="button"
+              (click)="closeDetailModal(); startStopwatch(appointment.id)"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+            >
+              <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+              Iniciar
+            </button>
+          }
+
+          @if (canReportPayment(appointment)) {
+            <button
+              type="button"
+              (click)="closeDetailModal(); openFinishModal(appointment)"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-tertiary text-on-primary text-label-md font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+            >
+              <span class="material-symbols-outlined text-[18px]">payments</span>
+              {{ appointment.paymentStatus === 'REJECTED' ? 'Reenviar pago' : 'Reportar pago' }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</main>
