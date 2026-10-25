@@ -1,0 +1,16 @@
+:host {
+	display: block;
+}
+
+.timer-digits {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
+}
+
+.no-scrollbar {
+	scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
