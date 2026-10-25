@@ -29,4 +29,27 @@ export class AuthService {
     const userData = this.getUserData();
     return userData ? userData.businessId : null;
   }
+
+  getTechnicianId(): number | null {
+    const userData = this.getUserData();
+    return userData?.technician_id ?? null;
+  }
+
+  getRole(): string | null {
+    const userData = this.getUserData();
+    return userData?.role ?? null;
+  }
+
+  isOwner(): boolean {
+    return this.getRole()?.toLowerCase() === 'owner';
+  }
+
+  isTechnician(): boolean {
+    return this.getRole()?.toLowerCase() === 'technician';
+  }
+
+  getUserName(): string {
+    const userData = this.getUserData();
+    return userData?.user_name ?? userData?.email ?? 'Usuario';
+  }
 }

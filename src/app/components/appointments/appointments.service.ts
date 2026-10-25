@@ -30,6 +30,18 @@ export class AppointmentsService {
 
   }
 
+  getMyAppointments(): Observable<Appointment[]> {
+
+    const token = this.tokenService.getToken();
+
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${ token }`
+    })
+
+    return this.http.get<Appointment[]>(`${ this.URL_API }/my`, { headers });
+
+  }
+
   createAppointment(payload: AppointmentCreate): Observable<Appointment> {
 
     const token = this.tokenService.getToken();

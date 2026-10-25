@@ -4,6 +4,7 @@ import { RouterLink, Router } from '@angular/router';
 import { LoginPayload } from '../../model/interfaces';
 import { LoginService } from './login.service';
 import { ToastMessage } from '../toast-message/toast-message';
+import { AuthService } from '../../service/Auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,7 @@ export class Login {
     private loginService: LoginService,
     private router: Router,
     private changeDetectorRef: ChangeDetectorRef,
+    private authService: AuthService,
   ) {
 
     
@@ -47,9 +49,10 @@ export class Login {
 
     this.loginService.login(payload).subscribe({
       next:(data) => {
-        console.log(data);
         localStorage.setItem('token', data.token);
-        this.router.navigate(["/appointments"]);
+        this.router.navigate([
+          this.authService.isTechnician() ? '/technician-mobile' : '/appointments',
+        ]);
       },
       error:(error) => {
 
