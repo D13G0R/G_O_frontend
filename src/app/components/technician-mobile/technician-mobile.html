@@ -273,7 +273,7 @@
               @if (canStart(appointment)) {
                 <button
                   type="button"
-                  (click)="startStopwatch(appointment.id)"
+                  (click)="openStartConfirmation(appointment)"
                   class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-semibold hover:opacity-90 transition-opacity"
                 >
                   <span class="material-symbols-outlined text-[18px]">play_arrow</span>
@@ -349,6 +349,99 @@
       </div>
     </div>
   </div>
+
+  @if (startTarget(); as appointment) {
+    <div class="fixed inset-0 z-[65] flex items-end sm:items-center justify-center">
+      <button
+        type="button"
+        (click)="closeStartConfirmation()"
+        class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
+        aria-label="Cerrar confirmación"
+      ></button>
+
+      <div
+        class="relative w-full sm:max-w-md bg-surface-container-lowest rounded-t-3xl sm:rounded-2xl shadow-2xl border border-outline-variant/60 overflow-hidden"
+      >
+        <div class="pt-3 flex justify-center sm:hidden">
+          <span class="w-10 h-1 rounded-full bg-outline-variant"></span>
+        </div>
+
+        <div class="p-5 border-b border-outline-variant/60 flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-primary-fixed text-primary flex items-center justify-center">
+              <span class="material-symbols-outlined text-[22px]">timer</span>
+            </div>
+
+            <div>
+              <h3 class="text-[18px] font-bold text-on-surface">¿Iniciar el servicio?</h3>
+              <p class="text-[12px] text-on-surface-variant mt-0.5">
+                Cita #{{ appointment.id }} · {{ formatTime(appointment.appointmentTime) }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeStartConfirmation()"
+            class="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors"
+            aria-label="Cerrar"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-4">
+          <div class="rounded-xl bg-surface-container-low p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+              Servicio
+            </p>
+            <p class="text-body-md font-semibold text-on-surface mt-1">{{ appointment.applianceType }}</p>
+            <p class="text-body-sm text-on-surface-variant">{{ appointment.customerName }}</p>
+            <p class="text-[12px] text-on-surface-variant mt-2">{{ appointment.address }}</p>
+          </div>
+
+          <div class="rounded-xl bg-tertiary-container/30 border border-tertiary/20 px-4 py-3 flex items-start gap-2">
+            <span class="material-symbols-outlined text-tertiary text-[19px]">info</span>
+            <p class="text-[12px] text-on-surface leading-snug">
+              El cronómetro quedará activo y no podrás iniciar otro servicio hasta finalizar este.
+            </p>
+          </div>
+
+          @if (startStopwatchError()) {
+            <div class="rounded-xl bg-error-container/40 border border-error/20 px-4 py-3">
+              <p class="text-[12px] font-medium text-error">{{ startStopwatchError() }}</p>
+            </div>
+          }
+        </div>
+
+        <div class="p-4 border-t border-outline-variant/60 flex items-center gap-2">
+          <button
+            type="button"
+            (click)="closeStartConfirmation()"
+            [disabled]="startingStopwatch()"
+            class="flex-1 px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant text-label-md font-semibold hover:bg-surface-container transition-colors disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            (click)="confirmStartStopwatch()"
+            [disabled]="startingStopwatch()"
+            class="flex-1 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            @if (startingStopwatch()) {
+              <span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+              Iniciando...
+            } @else {
+              <span class="material-symbols-outlined text-[18px]">play_arrow</span>
+              Confirmar inicio
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   @if (finishTarget(); as appointment) {
     <div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
@@ -685,7 +778,7 @@
           @if (canStart(appointment)) {
             <button
               type="button"
-              (click)="closeDetailModal(); startStopwatch(appointment.id)"
+              (click)="closeDetailModal(); openStartConfirmation(appointment)"
               class="flex-1 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-label-md font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
             >
               <span class="material-symbols-outlined text-[18px]">play_arrow</span>

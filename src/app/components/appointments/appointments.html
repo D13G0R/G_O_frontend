@@ -197,6 +197,25 @@
           Client: {{appointment.customerName}} {{appointment.customerPhone}}
         </p>
 
+        @if (serviceDuration(appointment); as duration) {
+        <div class="mb-4 grid grid-cols-3 gap-2 rounded-xl bg-[#004ac6]/5 p-3 text-[#004ac6]">
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-wide">Inicio</p>
+            <p class="mt-0.5 text-[13px] font-bold">{{ formatBogotaTime(appointment.startTime) }}</p>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-wide">Final</p>
+            <p class="mt-0.5 text-[13px] font-bold">{{ formatBogotaTime(appointment.endTime) }}</p>
+          </div>
+
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-wide">Duración</p>
+            <p class="mt-0.5 text-[13px] font-bold">{{ duration }}</p>
+          </div>
+        </div>
+        }
+
         <div class="flex items-center gap-4 mt-auto pt-4 border-t border-[#c3c6d7]/50">
           <div class="w-10 h-10 rounded-full bg-[#dbe1ff] flex items-center justify-center text-[#004ac6]">
             <span class="material-symbols-outlined">person</span>

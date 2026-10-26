@@ -18,10 +18,14 @@ export interface Appointment {
     paymentSubmittedAt?: string | null;
     paymentReviewedAt?: string | null;
     hasPaymentEvidence?: boolean | null;
+    startTime?: string | null;
+    endTime?: string | null;
     createdAt: string;
     updateAt: string;
 
 }
+
+export type StopwatchAction = 'start' | 'stop';
 export interface AppointmentCreate {
 
   sessionId: string;
