@@ -112,6 +112,52 @@ export class Appointments implements OnInit {
     this.selectedStatusFilter.set(requiredStatusFilter);
   }
 
+  formatBogotaTime(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    const parsedDate = new Date(value);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return '';
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Bogota',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }).format(parsedDate);
+  }
+
+  serviceDuration(appointment: Appointment): string {
+    if (
+      appointment.status?.trim().toLowerCase() !== 'completed' ||
+      !appointment.startTime ||
+      !appointment.endTime
+    ) {
+      return '';
+    }
+
+    const start = Date.parse(appointment.startTime);
+    const end = Date.parse(appointment.endTime);
+
+    if (Number.isNaN(start) || Number.isNaN(end) || end < start) {
+      return '';
+    }
+
+    const totalMinutes = Math.max(1, Math.round((end - start) / 60000));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours > 0) {
+      return `${hours} h ${minutes} min`;
+    }
+
+    return `${minutes} min`;
+  }
+
 
   createAppointment() {
     

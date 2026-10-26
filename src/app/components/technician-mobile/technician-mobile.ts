@@ -22,11 +22,6 @@ interface AppointmentTabDefinition {
   readonly label: string;
 }
 
-interface StopwatchState {
-  readonly startedAt: number | null;
-  readonly accumulatedMs: number;
-}
-
 interface StatusPresentation {
   readonly label: string;
   readonly dotClass: string;
@@ -119,15 +114,17 @@ export class TechnicianMobile implements OnInit, OnDestroy {
       ).length,
   );
 
-  readonly runningCount = computed(() => {
-    let running = 0;
-    for (const state of this.stopwatches().values()) {
-      if (state.startedAt !== null) {
-        running++;
-      }
-    }
-    return running;
-  });
+  readonly activeAppointment = computed(
+    () => this.appointments().find((appointment) => this.hasActiveStopwatch(appointment)) ?? null,
+  );
+
+  readonly runningCount = computed(() => (this.activeAppointment() ? 1 : 0));
+
+  readonly startTarget = signal<Appointment | null>(null);
+
+  readonly startingStopwatch = signal(false);
+
+  readonly startStopwatchError = signal('');
 
   readonly finishTarget = signal<Appointment | null>(null);
 
@@ -150,8 +147,6 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   readonly successMessage = signal('');
 
   private readonly now = signal(Date.now());
-
-  private readonly stopwatches = signal<ReadonlyMap<number, StopwatchState>>(new Map());
 
   private tickerId: number | null = null;
 
@@ -269,8 +264,10 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   canStart(appointment: Appointment): boolean {
     return (
       this.isTechnician() &&
-      !this.isStopwatchRunning(appointment.id) &&
+      appointment.startTime == null &&
+      this.activeAppointment() === null &&
       this.normalizeStatus(appointment.status) !== 'cancelled' &&
+      this.normalizeStatus(appointment.status) !== 'completed' &&
       appointment.paymentStatus !== 'PENDING' &&
       appointment.paymentStatus !== 'APPROVED'
     );
@@ -355,51 +352,73 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   }
 
   isStopwatchRunning(appointmentId: number): boolean {
-    return this.stopwatches().get(appointmentId)?.startedAt != null;
+    const appointment = this.appointments().find((item) => item.id === appointmentId);
+    return appointment ? this.hasActiveStopwatch(appointment) : false;
   }
 
   elapsedMs(appointmentId: number): number {
-    const state = this.stopwatches().get(appointmentId);
+    const appointment = this.appointments().find((item) => item.id === appointmentId);
 
-    if (!state) {
+    if (!appointment?.startTime) {
       return 0;
     }
 
-    return state.accumulatedMs + (state.startedAt === null ? 0 : this.now() - state.startedAt);
+    const start = Date.parse(appointment.startTime);
+    const end = appointment.endTime ? Date.parse(appointment.endTime) : this.now();
+
+    if (Number.isNaN(start) || Number.isNaN(end)) {
+      return 0;
+    }
+
+    return Math.max(0, end - start);
   }
 
-  startStopwatch(appointmentId: number): void {
-    const currentStopwatches = this.stopwatches();
-    const currentState = currentStopwatches.get(appointmentId);
-
-    if (currentState?.startedAt != null) {
+  openStartConfirmation(appointment: Appointment): void {
+    if (!this.canStart(appointment)) {
       return;
     }
 
-    const nextStopwatches = new Map(currentStopwatches);
-    nextStopwatches.set(appointmentId, {
-      startedAt: Date.now(),
-      accumulatedMs: currentState?.accumulatedMs ?? 0,
-    });
-    this.stopwatches.set(nextStopwatches);
-    this.ensureTicker();
+    this.startTarget.set(appointment);
+    this.startStopwatchError.set('');
   }
 
-  stopStopwatch(appointmentId: number): void {
-    const currentStopwatches = this.stopwatches();
-    const currentState = currentStopwatches.get(appointmentId);
-
-    if (!currentState || currentState.startedAt === null) {
+  closeStartConfirmation(): void {
+    if (this.startingStopwatch()) {
       return;
     }
 
-    const nextStopwatches = new Map(currentStopwatches);
-    nextStopwatches.set(appointmentId, {
-      startedAt: null,
-      accumulatedMs: currentState.accumulatedMs + Date.now() - currentState.startedAt,
+    this.startTarget.set(null);
+  }
+
+  confirmStartStopwatch(): void {
+    const appointment = this.startTarget();
+
+    if (!appointment || this.startingStopwatch()) {
+      return;
+    }
+
+    this.startingStopwatch.set(true);
+    this.startStopwatchError.set('');
+
+    // 1. Persistir el inicio en el servidor antes de mostrar el cronómetro.
+    this.appointmentsService.updateStopwatch(appointment.id, 'start').subscribe({
+      next: (updatedAppointment) => {
+        this.startingStopwatch.set(false);
+        this.startTarget.set(null);
+        this.replaceAppointment(updatedAppointment);
+        this.setSuccessMessage('Cronómetro iniciado.');
+      },
+      error: (error) => {
+        this.startingStopwatch.set(false);
+        this.startStopwatchError.set(
+          error?.error?.message || 'No se pudo iniciar el cronómetro. Inténtalo nuevamente.',
+        );
+
+        if (error?.status === 409) {
+          this.loadAppointments();
+        }
+      },
     });
-    this.stopwatches.set(nextStopwatches);
-    this.stopTickerIfIdle(nextStopwatches);
   }
 
   openFinishModal(appointment: Appointment): void {
@@ -496,10 +515,31 @@ export class TechnicianMobile implements OnInit, OnDestroy {
     this.submittingPayment.set(true);
     this.submitPaymentError.set('');
 
+    // 2. Detener el cronómetro antes de reportar el servicio como terminado.
+    if (this.isStopwatchRunning(appointment.id)) {
+      this.appointmentsService.updateStopwatch(appointment.id, 'stop').subscribe({
+        next: (updatedAppointment) => {
+          this.replaceAppointment(updatedAppointment);
+          this.sendPayment(appointment, formData);
+        },
+        error: (error) => {
+          this.submittingPayment.set(false);
+          this.submitPaymentError.set(
+            error?.error?.message || 'No se pudo finalizar el cronómetro. Inténtalo nuevamente.',
+          );
+        },
+      });
+      return;
+    }
+
+    this.sendPayment(appointment, formData);
+  }
+
+  private sendPayment(appointment: Appointment, formData: FormData): void {
+    // 3. Enviar el pago; el backend conserva el cierre del cronómetro como respaldo.
     this.paymentService.submitPayment(appointment.id, formData).subscribe({
       next: () => {
         this.submittingPayment.set(false);
-        this.stopStopwatch(appointment.id);
         this.closeFinishModal();
         this.setSuccessMessage('Pago reportado. El negocio lo validará en breve.');
         this.loadAppointments();
@@ -523,6 +563,7 @@ export class TechnicianMobile implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   closeActiveModal(): void {
+    this.closeStartConfirmation();
     this.closeFinishModal();
     this.closeDetailModal();
   }
@@ -540,6 +581,8 @@ export class TechnicianMobile implements OnInit, OnDestroy {
       next: (appointments) => {
         this.appointments.set(appointments);
         this.loading.set(false);
+        // 4. Reanudar el cronómetro activo usando start_time del servidor.
+        this.syncTicker();
       },
       error: (error) => {
         this.loading.set(false);
@@ -570,6 +613,28 @@ export class TechnicianMobile implements OnInit, OnDestroy {
     const normalized = (status ?? '').trim().toLowerCase();
 
     return normalized === 'pending' ? 'scheduled' : normalized;
+  }
+
+  private hasActiveStopwatch(appointment: Appointment): boolean {
+    return appointment.startTime != null && appointment.endTime == null;
+  }
+
+  private replaceAppointment(updatedAppointment: Appointment): void {
+    this.appointments.update((appointments) =>
+      appointments.map((appointment) =>
+        appointment.id === updatedAppointment.id ? updatedAppointment : appointment,
+      ),
+    );
+    this.syncTicker();
+  }
+
+  private syncTicker(): void {
+    if (this.activeAppointment()) {
+      this.ensureTicker();
+      return;
+    }
+
+    this.clearTicker();
   }
 
   private hasPaymentActivity(appointment: Appointment): boolean {
@@ -606,14 +671,6 @@ export class TechnicianMobile implements OnInit, OnDestroy {
 
     this.now.set(Date.now());
     this.tickerId = window.setInterval(() => this.now.set(Date.now()), 1000);
-  }
-
-  private stopTickerIfIdle(states: ReadonlyMap<number, StopwatchState>): void {
-    const hasRunningStopwatch = [...states.values()].some((state) => state.startedAt !== null);
-
-    if (!hasRunningStopwatch) {
-      this.clearTicker();
-    }
   }
 
   private clearTicker(): void {

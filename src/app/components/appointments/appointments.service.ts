@@ -1,6 +1,6 @@
 import { HttpClient, HttpHandler, HttpHeaders } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
-import { Appointment } from '../../model/interfaces';
+import { Appointment, StopwatchAction } from '../../model/interfaces';
 import { AuthService } from '../../service/Auth/auth.service'
 import { TokenService } from '../../service/token/token'
 import { Observable } from 'rxjs';
@@ -63,6 +63,22 @@ export class AppointmentsService {
     })
 
     return this.http.put<Appointment>(`${this.URL_API}/update/${payload.id}`, payload,  { headers });
+  }
+
+  updateStopwatch(appointmentId: number, action: StopwatchAction): Observable<Appointment> {
+
+    const token = this.tokenService.getToken();
+
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${ token }`,
+      "Content-Type": "application/json"
+    })
+
+    return this.http.patch<Appointment>(
+      `${ this.URL_API }/${ appointmentId }/stopwatch`,
+      { action },
+      { headers }
+    );
   }
 
   deleteAppointment(id: number){
