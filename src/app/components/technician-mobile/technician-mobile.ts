@@ -103,7 +103,7 @@ export class TechnicianMobile implements OnInit, OnDestroy {
 
   readonly displayName = computed(() => this.authService.getUserName());
 
-  readonly isTechnician = computed(() => this.authService.isTechnician());
+  readonly isTechnician = computed(() => this.authService.hasTechnicianProfile());
 
   readonly completedCount = computed(
     () =>

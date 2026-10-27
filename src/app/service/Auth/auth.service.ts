@@ -35,6 +35,20 @@ export class AuthService {
     return userData?.technician_id ?? null;
   }
 
+  hasTechnicianProfile(): boolean {
+    return this.getTechnicianId() != null;
+  }
+
+  getUserId(): number | null {
+    const userData = this.getUserData();
+    return userData?.user_id ?? null;
+  }
+
+  getEmail(): string | null {
+    const userData = this.getUserData();
+    return userData?.email ?? null;
+  }
+
   getRole(): string | null {
     const userData = this.getUserData();
     return userData?.role ?? null;
