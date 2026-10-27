@@ -119,6 +119,8 @@ export class PaymentValidation implements OnInit, OnDestroy {
 
   private evidenceObjectUrl: string | null = null;
 
+  private evidenceRequestVersion = 0;
+
   private readonly statusPresentation: Readonly<Record<string, StatusPresentation>> = {
     PENDING: {
       label: 'Pendiente',
@@ -263,6 +265,8 @@ export class PaymentValidation implements OnInit, OnDestroy {
       return;
     }
 
+    const requestVersion = ++this.evidenceRequestVersion;
+
     this.evidenceTarget.set(payment);
     this.evidenceLoading.set(true);
     this.evidenceError.set('');
@@ -272,6 +276,10 @@ export class PaymentValidation implements OnInit, OnDestroy {
 
     this.paymentService.getEvidence(payment.id).subscribe({
       next: (blob) => {
+        if (requestVersion !== this.evidenceRequestVersion) {
+          return;
+        }
+
         const url = URL.createObjectURL(blob);
         this.evidenceObjectUrl = url;
         this.evidenceContentType.set(blob.type);
@@ -280,6 +288,10 @@ export class PaymentValidation implements OnInit, OnDestroy {
         this.evidenceLoading.set(false);
       },
       error: (error) => {
+        if (requestVersion !== this.evidenceRequestVersion) {
+          return;
+        }
+
         this.evidenceLoading.set(false);
         this.evidenceError.set(
           error?.error?.message || 'No se pudo cargar el comprobante.',
@@ -289,9 +301,11 @@ export class PaymentValidation implements OnInit, OnDestroy {
   }
 
   closeEvidenceModal(): void {
+    this.evidenceRequestVersion++;
     this.evidenceTarget.set(null);
     this.evidenceContentType.set('');
     this.evidenceError.set('');
+    this.evidenceLoading.set(false);
     this.revokeEvidenceUrl();
     this.evidenceUrl.set(null);
     this.evidencePreviewUrl.set(null);
@@ -353,10 +367,19 @@ export class PaymentValidation implements OnInit, OnDestroy {
       return;
     }
 
+    const evidenceWasOpen = this.evidenceTarget()?.id === event.payment.id;
+
     this.setSuccessMessage(
       `${event.payment.technicianName} reportó un pago de ${this.formatCurrency(event.payment.amount)}.`,
     );
     this.loadPayments();
+
+    if (evidenceWasOpen) {
+      this.closeEvidenceModal();
+      this.setSuccessMessage(
+        'El técnico actualizó el comprobante. Vuelve a abrirlo para revisar la nueva imagen.',
+      );
+    }
   }
 
   private setSuccessMessage(message: string): void {
