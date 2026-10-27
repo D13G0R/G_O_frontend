@@ -111,10 +111,8 @@ export interface TechnicianInterface {
     email: string;
     idCard: string;
     photo: string | null;
-    bossId?: number | null;
     businessId?: number | null;
     userId?: number | null;
-    active?: boolean;
     createdAt: string;
     updatedAt: string;
 }
@@ -124,7 +122,6 @@ export interface RegisterTechnicianRequest {
     phoneNumber: string;
     email: string;
     idCard: string;
-    photo?: string | null;
     password: string;
 }
 

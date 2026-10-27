@@ -14,7 +14,7 @@
       <div class="flex flex-col gap-1">
         <h1 class="text-[28px] leading-tight font-semibold text-on-surface">Registrar técnico</h1>
         <p class="text-body-sm text-on-surface-variant max-w-2xl">
-          Crea el acceso del técnico con el email y la contraseña que usarás para iniciar sesión en la vista móvil.
+          Registra tu propia ficha de técnico o crea el acceso de alguien más. El dueño con ficha puede operar el cronómetro y reportar pagos sin cambiar de cuenta.
         </p>
       </div>
 
@@ -32,137 +32,268 @@
         </div>
       }
 
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          type="button"
+          (click)="setMode('owner')"
+          [disabled]="submitting()"
+          class="text-left rounded-2xl border p-4 transition-colors disabled:opacity-60"
+          [class]="mode() === 'owner'
+            ? 'border-primary bg-primary-fixed/40 ring-1 ring-primary/20'
+            : 'border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container'"
+        >
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-[22px]" [class]="mode() === 'owner' ? 'text-primary' : 'text-on-surface-variant'">badge</span>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <p class="text-[14px] font-semibold text-on-surface">Soy dueño y también técnico</p>
+                @if (ownerTechnician()) {
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-tertiary-container/60 text-tertiary border border-tertiary/20">Ficha creada</span>
+                }
+              </div>
+              <p class="text-[12px] text-on-surface-variant mt-1">Usa tu cuenta actual. Solo agregas o actualizas tu foto.</p>
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          (click)="setMode('technician')"
+          [disabled]="submitting()"
+          class="text-left rounded-2xl border p-4 transition-colors disabled:opacity-60"
+          [class]="mode() === 'technician'
+            ? 'border-primary bg-primary-fixed/40 ring-1 ring-primary/20'
+            : 'border-outline-variant/60 bg-surface-container-lowest hover:bg-surface-container'"
+        >
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-outlined text-[22px]" [class]="mode() === 'technician' ? 'text-primary' : 'text-on-surface-variant'">person_add</span>
+            <div class="min-w-0">
+              <p class="text-[14px] font-semibold text-on-surface">Registrar otro técnico</p>
+              <p class="text-[12px] text-on-surface-variant mt-1">Crea un usuario nuevo con su propio email y contraseña.</p>
+            </div>
+          </div>
+        </button>
+      </div>
+
       <div class="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-6 mt-6">
         <form [formGroup]="form" (ngSubmit)="submit()" class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-6">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
-              <span class="material-symbols-outlined text-[22px]">person_add</span>
+              <span class="material-symbols-outlined text-[22px]">{{ mode() === 'owner' ? 'badge' : 'person_add' }}</span>
             </div>
             <div>
-              <h2 class="text-[18px] font-semibold text-on-surface">Datos del técnico</h2>
-              <p class="text-[12px] text-on-surface-variant">El técnico quedará vinculado a tu negocio.</p>
+              <h2 class="text-[18px] font-semibold text-on-surface">
+                {{ mode() === 'owner' ? 'Tu ficha de técnico' : 'Datos del técnico' }}
+              </h2>
+              <p class="text-[12px] text-on-surface-variant">
+                {{ mode() === 'owner'
+                  ? 'Tu ficha quedará vinculada a tu negocio y a tu cuenta de dueño.'
+                  : 'El técnico quedará vinculado a tu negocio.' }}
+              </p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-            <div class="sm:col-span-2">
-              <label for="fullName" class="block text-label-sm font-semibold text-on-surface mb-1.5">Nombre completo</label>
-              <input
-                id="fullName"
-                type="text"
-                formControlName="fullName"
-                placeholder="Ej. Alfredo Gómez"
-                class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                [class]="hasError('fullName') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
-              />
-              @if (hasError('fullName')) {
-                <p class="text-[11px] font-medium text-error mt-1">Ingresa el nombre completo.</p>
-              }
+          @if (mode() === 'owner') {
+            <div class="mt-6 rounded-xl border border-outline-variant/60 bg-surface-container/50 p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden">
+                  @if (ownerPhotoUrl(); as photo) {
+                    <img [src]="photo" [alt]="ownerName" class="w-full h-full object-cover" />
+                  } @else {
+                    <span class="material-symbols-outlined text-[22px]">person</span>
+                  }
+                </div>
+                <div class="min-w-0">
+                  <p class="text-body-sm font-semibold text-on-surface truncate">{{ ownerName }}</p>
+                  <p class="text-[12px] text-on-surface-variant truncate">{{ ownerEmail }}</p>
+                </div>
+                <span class="ml-auto shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-fixed text-primary border border-primary/20">Dueño</span>
+              </div>
             </div>
 
-            <div>
-              <label for="phoneNumber" class="block text-label-sm font-semibold text-on-surface mb-1.5">Teléfono</label>
-              <input
-                id="phoneNumber"
-                type="tel"
-                formControlName="phoneNumber"
-                placeholder="300 000 0000"
-                class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                [class]="hasError('phoneNumber') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
-              />
-              @if (hasError('phoneNumber')) {
-                <p class="text-[11px] font-medium text-error mt-1">Ingresa entre 10 y 15 dígitos.</p>
-              }
+            <div class="mt-4 rounded-xl border border-primary/20 bg-primary-fixed/30 px-4 py-3">
+              <p class="text-[12px] font-medium text-on-surface">
+                Usarás tu mismo email y contraseña. No necesitas crear una cuenta nueva ni iniciar sesión como técnico.
+              </p>
             </div>
 
-            <div>
-              <label for="idCard" class="block text-label-sm font-semibold text-on-surface mb-1.5">Cédula</label>
-              <input
-                id="idCard"
-                type="text"
-                formControlName="idCard"
-                placeholder="1020304050"
-                class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                [class]="hasError('idCard') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
-              />
-              @if (hasError('idCard')) {
-                <p class="text-[11px] font-medium text-error mt-1">Ingresa entre 6 y 16 caracteres.</p>
-              }
-            </div>
-
-            <div class="sm:col-span-2">
-              <label for="email" class="block text-label-sm font-semibold text-on-surface mb-1.5">Email de acceso</label>
-              <input
-                id="email"
-                type="email"
-                formControlName="email"
-                placeholder="tecnico@correo.com"
-                class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                [class]="hasError('email') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
-              />
-              @if (hasError('email')) {
-                <p class="text-[11px] font-medium text-error mt-1">Ingresa un email válido.</p>
-              }
-            </div>
-
-            <div class="sm:col-span-2">
-              <label for="photo" class="block text-label-sm font-semibold text-on-surface mb-1.5">
-                Foto <span class="font-normal text-on-surface-variant">(opcional, URL)</span>
-              </label>
-              <input
-                id="photo"
-                type="url"
-                formControlName="photo"
-                placeholder="https://..."
-                class="w-full px-4 py-2.5 rounded-xl border border-outline-variant bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label for="password" class="block text-label-sm font-semibold text-on-surface mb-1.5">Contraseña</label>
-              <div class="relative">
+            @if (ownerTechnician()) {
+              <div class="mt-3 rounded-xl border border-tertiary/20 bg-tertiary-container/30 px-4 py-3">
+                <p class="text-[12px] font-medium text-on-surface">
+                  Tu ficha ya existe. Puedes cambiar la foto y guardar para actualizarla.
+                </p>
+              </div>
+            } @else {
+              <div class="mt-3 rounded-xl border border-outline-variant/60 bg-surface-container/40 px-4 py-3">
+                <p class="text-[12px] font-medium text-on-surface">
+                  Aún no tienes ficha de técnico. Al guardar podrás operar el cronómetro y reportar pagos desde la vista móvil.
+                </p>
+              </div>
+            }
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+              <div class="sm:col-span-2">
+                <label for="fullName" class="block text-label-sm font-semibold text-on-surface mb-1.5">Nombre completo</label>
                 <input
-                  id="password"
-                  [type]="showPassword() ? 'text' : 'password'"
-                  formControlName="password"
-                  placeholder="Mínimo 8 caracteres"
-                  class="w-full pl-4 pr-11 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                  [class]="hasError('password') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                  id="fullName"
+                  type="text"
+                  formControlName="fullName"
+                  placeholder="Ej. Alfredo Gómez"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                  [class]="hasError('fullName') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
                 />
+                @if (hasError('fullName')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Ingresa el nombre completo.</p>
+                }
+              </div>
+
+              <div>
+                <label for="phoneNumber" class="block text-label-sm font-semibold text-on-surface mb-1.5">Teléfono</label>
+                <input
+                  id="phoneNumber"
+                  type="tel"
+                  formControlName="phoneNumber"
+                  placeholder="300 000 0000"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                  [class]="hasError('phoneNumber') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                />
+                @if (hasError('phoneNumber')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Ingresa entre 10 y 15 dígitos.</p>
+                }
+              </div>
+
+              <div>
+                <label for="idCard" class="block text-label-sm font-semibold text-on-surface mb-1.5">Cédula</label>
+                <input
+                  id="idCard"
+                  type="text"
+                  formControlName="idCard"
+                  placeholder="1020304050"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                  [class]="hasError('idCard') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                />
+                @if (hasError('idCard')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Ingresa entre 6 y 16 caracteres.</p>
+                }
+              </div>
+
+              <div class="sm:col-span-2">
+                <label for="email" class="block text-label-sm font-semibold text-on-surface mb-1.5">Email de acceso</label>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="tecnico@correo.com"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                  [class]="hasError('email') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                />
+                @if (hasError('email')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Ingresa un email válido.</p>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="mt-6 border-t border-outline-variant/60 pt-5">
+            <label class="block text-label-sm font-semibold text-on-surface mb-1.5">
+              Foto de perfil <span class="font-normal text-on-surface-variant">(opcional)</span>
+            </label>
+
+            <div class="flex items-center gap-4">
+              <div class="w-20 h-20 shrink-0 rounded-2xl bg-primary-fixed flex items-center justify-center text-primary overflow-hidden border border-outline-variant/40">
+                @if (photoToShow(); as photo) {
+                  <img [src]="photo" alt="Vista previa de la foto" class="w-full h-full object-cover" />
+                } @else {
+                  <span class="material-symbols-outlined text-[30px]">add_a_photo</span>
+                }
+              </div>
+
+              <div class="min-w-0">
+                <input
+                  #photoInput
+                  id="photo"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  class="hidden"
+                  (change)="onPhotoSelected($event)"
+                />
+
                 <button
                   type="button"
-                  (click)="togglePassword()"
-                  class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container"
-                  [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  (click)="photoInput.click()"
+                  [disabled]="submitting()"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-outline-variant text-on-surface text-label-sm font-semibold hover:bg-surface-container transition-colors disabled:opacity-50"
                 >
-                  <span class="material-symbols-outlined text-[20px]">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+                  <span class="material-symbols-outlined text-[18px]">upload</span>
+                  {{ selectedPhoto() ? 'Cambiar foto' : 'Seleccionar foto' }}
                 </button>
-              </div>
-              @if (hasError('password')) {
-                <p class="text-[11px] font-medium text-error mt-1">Usa al menos 8 caracteres.</p>
-              }
-            </div>
 
-            <div>
-              <label for="confirmPassword" class="block text-label-sm font-semibold text-on-surface mb-1.5">Confirmar contraseña</label>
-              <input
-                id="confirmPassword"
-                [type]="showPassword() ? 'text' : 'password'"
-                formControlName="confirmPassword"
-                placeholder="Repite la contraseña"
-                class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
-                [class]="hasError('confirmPassword') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
-              />
-              @if (hasError('confirmPassword')) {
-                <p class="text-[11px] font-medium text-error mt-1">Confirma la contraseña.</p>
-              }
+                @if (selectedPhotoName()) {
+                  <div class="flex items-center gap-2 mt-2">
+                    <p class="text-[11px] text-on-surface-variant truncate max-w-[220px]">{{ selectedPhotoName() }}</p>
+                    <button type="button" (click)="removeSelectedPhoto()" class="text-[11px] font-semibold text-error hover:underline">Quitar</button>
+                  </div>
+                } @else {
+                  <p class="text-[11px] text-on-surface-variant mt-1">JPG, PNG o WEBP. Máximo 5 MB.</p>
+                }
+              </div>
             </div>
           </div>
+
+          @if (mode() === 'technician') {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 border-t border-outline-variant/60 pt-5">
+              <div>
+                <label for="password" class="block text-label-sm font-semibold text-on-surface mb-1.5">Contraseña</label>
+                <div class="relative">
+                  <input
+                    id="password"
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    placeholder="Mínimo 8 caracteres"
+                    class="w-full pl-4 pr-11 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                    [class]="hasError('password') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                  />
+                  <button
+                    type="button"
+                    (click)="togglePassword()"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container"
+                    [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                  >
+                    <span class="material-symbols-outlined text-[20px]">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+                  </button>
+                </div>
+                @if (hasError('password')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Usa al menos 8 caracteres.</p>
+                }
+              </div>
+
+              <div>
+                <label for="confirmPassword" class="block text-label-sm font-semibold text-on-surface mb-1.5">Confirmar contraseña</label>
+                <input
+                  id="confirmPassword"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  placeholder="Repite la contraseña"
+                  class="w-full px-4 py-2.5 rounded-xl border bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1"
+                  [class]="hasError('confirmPassword') ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'"
+                />
+                @if (hasError('confirmPassword')) {
+                  <p class="text-[11px] font-medium text-error mt-1">Confirma la contraseña.</p>
+                }
+              </div>
+
+              <div class="sm:col-span-2 rounded-xl border border-primary/20 bg-primary-fixed/30 px-4 py-3">
+                <p class="text-[12px] font-medium text-on-surface">
+                  Con este email y contraseña el técnico iniciará sesión en la app móvil. Su horario se tomará del negocio.
+                </p>
+              </div>
+            </div>
+          }
 
           <div class="flex items-center gap-2 mt-6">
             <button
               type="button"
-              (click)="form.reset()"
+              (click)="clearForm()"
               [disabled]="submitting()"
               class="px-4 py-2.5 rounded-xl border border-outline-variant text-on-surface-variant text-label-md font-semibold hover:bg-surface-container transition-colors disabled:opacity-50"
             >
@@ -176,10 +307,10 @@
             >
               @if (submitting()) {
                 <span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                Registrando...
+                {{ mode() === 'owner' ? 'Guardando...' : 'Registrando...' }}
               } @else {
-                <span class="material-symbols-outlined text-[18px]">person_add</span>
-                Registrar técnico
+                <span class="material-symbols-outlined text-[18px]">{{ mode() === 'owner' ? 'save' : 'person_add' }}</span>
+                {{ submitLabel() }}
               }
             </button>
           </div>
@@ -190,7 +321,7 @@
             <div>
               <h2 class="text-[18px] font-semibold text-on-surface">Equipo</h2>
               <p class="text-[12px] text-on-surface-variant mt-0.5">
-                {{ linkedCount() }} de {{ technicians().length }} técnicos con acceso.
+                {{ linkedCount() }} {{ linkedCount() === 1 ? 'técnico vinculado' : 'técnicos vinculados' }} a tu negocio.
               </p>
             </div>
             <span class="material-symbols-outlined text-on-surface-variant">groups</span>
@@ -204,28 +335,28 @@
             </div>
           } @else {
             <ul class="mt-4 divide-y divide-outline-variant/60">
-              @for (technician of technicians(); track technician.id) {
+              @for (technician of technicians(); track trackTechnician($index, technician)) {
                 <li class="py-3 flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden">
-                    @if (technician.photo) {
-                      <img [src]="technician.photo" [alt]="technician.fullName" class="w-full h-full object-cover" />
+                  <div class="w-10 h-10 shrink-0 rounded-full bg-primary-fixed flex items-center justify-center text-primary overflow-hidden">
+                    @if (technician.photo; as photo) {
+                      <img [src]="photoUrl(photo)" [alt]="technician.fullName" class="w-full h-full object-cover" />
                     } @else {
                       <span class="material-symbols-outlined text-[20px]">person</span>
                     }
                   </div>
 
                   <div class="min-w-0 flex-1">
-                    <p class="text-body-sm font-semibold text-on-surface truncate">{{ technician.fullName }}</p>
+                    <div class="flex items-center gap-2">
+                      <p class="text-body-sm font-semibold text-on-surface truncate">{{ technician.fullName }}</p>
+                      @if (isCurrentUser(technician)) {
+                        <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-fixed text-primary border border-primary/20">Tú</span>
+                      }
+                    </div>
                     <p class="text-[11px] text-on-surface-variant truncate">{{ technician.email }}</p>
                   </div>
 
-                  <span
-                    class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border"
-                    [class]="technician.userId != null
-                      ? 'bg-tertiary-container/50 text-tertiary border-tertiary/20'
-                      : 'bg-surface-container text-on-surface-variant border-outline-variant'"
-                  >
-                    {{ technician.userId != null ? 'Con acceso' : 'Sin acceso' }}
+                  <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold border bg-tertiary-container/50 text-tertiary border-tertiary/20">
+                    Técnico
                   </span>
                 </li>
               }
