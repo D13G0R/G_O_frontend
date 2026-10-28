@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { Register } from './components/register/register';
 import { Login } from './components/login/login';
 import { Appointments } from './components/appointments/appointments';
+import { Dashboard } from './components/dashboard/dashboard';
 import { BusinessConfiguration } from './components/business-configuration/business-configuration'
 import { TechnicianMobile } from './components/technician-mobile/technician-mobile';
 import { PaymentValidation } from './components/payment-validation/payment-validation';
@@ -18,6 +19,11 @@ export const routes: Routes = [
     {
         path: 'login',
         component : Login
+    },
+    {
+        path: 'dashboard',
+        component: Dashboard,
+        canActivate: [authGuard, ownerGuard]
     },
     {
         path: 'appointments',

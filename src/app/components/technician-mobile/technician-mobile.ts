@@ -10,12 +10,23 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Appointment, PaymentEvent } from '../../model/interfaces';
+import {
+  appointmentStatusLabel,
+  normalizeAppointmentStatus,
+} from '../../model/appointment-status';
 import { AuthService } from '../../service/Auth/auth.service';
 import { AppointmentsService } from '../appointments/appointments.service';
 import { PaymentService } from '../../service/payments/payment.service';
 import { PaymentRealtimeService } from '../../service/payments/payment-realtime.service';
 
-export type AppointmentTab = 'all' | 'scheduled' | 'confirmed' | 'cancelled' | 'payments';
+export type AppointmentTab =
+  | 'all'
+  | 'scheduled'
+  | 'confirmed'
+  | 'in_progress'
+  | 'pending_payment'
+  | 'cancelled'
+  | 'payments';
 
 interface AppointmentTabDefinition {
   readonly id: AppointmentTab;
@@ -60,6 +71,8 @@ export class TechnicianMobile implements OnInit, OnDestroy {
     { id: 'all', label: 'Todas' },
     { id: 'scheduled', label: 'Programadas' },
     { id: 'confirmed', label: 'Confirmadas' },
+    { id: 'in_progress', label: 'En curso' },
+    { id: 'pending_payment', label: 'Por cobrar' },
     { id: 'cancelled', label: 'Canceladas' },
     { id: 'payments', label: 'Pagos' },
   ];
@@ -73,6 +86,8 @@ export class TechnicianMobile implements OnInit, OnDestroy {
       all: appointments.length,
       scheduled: appointments.filter((appointment) => this.normalizeStatus(appointment.status) === 'scheduled').length,
       confirmed: appointments.filter((appointment) => this.normalizeStatus(appointment.status) === 'confirmed').length,
+      in_progress: appointments.filter((appointment) => this.normalizeStatus(appointment.status) === 'in_progress').length,
+      pending_payment: appointments.filter((appointment) => this.normalizeStatus(appointment.status) === 'pending_payment').length,
       cancelled: appointments.filter((appointment) => this.normalizeStatus(appointment.status) === 'cancelled').length,
       payments: appointments.filter((appointment) => this.hasPaymentActivity(appointment)).length,
     };
@@ -126,6 +141,12 @@ export class TechnicianMobile implements OnInit, OnDestroy {
 
   readonly startStopwatchError = signal('');
 
+  readonly stoppingStopwatch = signal(false);
+
+  readonly stopStopwatchError = signal('');
+
+  readonly stopTarget = signal<Appointment | null>(null);
+
   readonly finishTarget = signal<Appointment | null>(null);
 
   readonly detailTarget = signal<Appointment | null>(null);
@@ -166,6 +187,16 @@ export class TechnicianMobile implements OnInit, OnDestroy {
       label: 'Confirmada',
       dotClass: 'bg-tertiary',
       textClass: 'text-tertiary',
+    },
+    in_progress: {
+      label: 'En curso',
+      dotClass: 'bg-secondary',
+      textClass: 'text-secondary',
+    },
+    pending_payment: {
+      label: 'Por cobrar',
+      dotClass: 'bg-amber-500',
+      textClass: 'text-amber-700',
     },
     cancelled: {
       label: 'Cancelada',
@@ -220,7 +251,14 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   }
 
   statusMeta(status: string): StatusPresentation {
-    return this.statusPresentation[this.normalizeStatus(status)] ?? this.fallbackStatus;
+    const normalized = this.normalizeStatus(status);
+
+    return (
+      this.statusPresentation[normalized] ?? {
+        ...this.fallbackStatus,
+        label: appointmentStatusLabel(status),
+      }
+    );
   }
 
   paymentMeta(appointment: Appointment): PaymentPresentation | null {
@@ -250,7 +288,9 @@ export class TechnicianMobile implements OnInit, OnDestroy {
       return false;
     }
 
-    if (this.normalizeStatus(appointment.status) === 'cancelled') {
+    const status = this.normalizeStatus(appointment.status);
+
+    if (!['pending_payment', 'payment_rejected', 'completed'].includes(status)) {
       return false;
     }
 
@@ -261,13 +301,24 @@ export class TechnicianMobile implements OnInit, OnDestroy {
     return this.normalizeStatus(appointment.status) === 'completed';
   }
 
+  isPendingPayment(appointment: Appointment): boolean {
+    return this.normalizeStatus(appointment.status) === 'pending_payment';
+  }
+
+  canStop(appointment: Appointment): boolean {
+    return this.isTechnician() && this.isStopwatchRunning(appointment.id);
+  }
+
   canStart(appointment: Appointment): boolean {
+    const status = this.normalizeStatus(appointment.status);
+
     return (
       this.isTechnician() &&
       appointment.startTime == null &&
       this.activeAppointment() === null &&
-      this.normalizeStatus(appointment.status) !== 'cancelled' &&
-      this.normalizeStatus(appointment.status) !== 'completed' &&
+      !['cancelled', 'completed', 'payment_review', 'payment_rejected', 'pending_payment', 'in_progress'].includes(
+        status,
+      ) &&
       appointment.paymentStatus !== 'PENDING' &&
       appointment.paymentStatus !== 'APPROVED'
     );
@@ -388,6 +439,49 @@ export class TechnicianMobile implements OnInit, OnDestroy {
     }
 
     this.startTarget.set(null);
+  }
+
+  openStopConfirmation(appointment: Appointment): void {
+    if (!this.canStop(appointment)) {
+      return;
+    }
+
+    this.stopTarget.set(appointment);
+    this.stopStopwatchError.set('');
+  }
+
+  closeStopConfirmation(): void {
+    if (this.stoppingStopwatch()) {
+      return;
+    }
+
+    this.stopTarget.set(null);
+  }
+
+  confirmStopStopwatch(): void {
+    const appointment = this.stopTarget();
+
+    if (!appointment || this.stoppingStopwatch()) {
+      return;
+    }
+
+    this.stoppingStopwatch.set(true);
+    this.stopStopwatchError.set('');
+
+    this.appointmentsService.updateStopwatch(appointment.id, 'stop').subscribe({
+      next: (updatedAppointment) => {
+        this.stoppingStopwatch.set(false);
+        this.stopTarget.set(null);
+        this.replaceAppointment(updatedAppointment);
+        this.setSuccessMessage('Servicio detenido. Ya puedes reportar el pago.');
+      },
+      error: (error) => {
+        this.stoppingStopwatch.set(false);
+        this.stopStopwatchError.set(
+          error?.error?.message || 'No se pudo detener el cronómetro. Inténtalo nuevamente.',
+        );
+      },
+    });
   }
 
   confirmStartStopwatch(): void {
@@ -564,6 +658,7 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   @HostListener('document:keydown.escape')
   closeActiveModal(): void {
     this.closeStartConfirmation();
+    this.closeStopConfirmation();
     this.closeFinishModal();
     this.closeDetailModal();
   }
@@ -610,9 +705,7 @@ export class TechnicianMobile implements OnInit, OnDestroy {
   }
 
   private normalizeStatus(status: string): string {
-    const normalized = (status ?? '').trim().toLowerCase();
-
-    return normalized === 'pending' ? 'scheduled' : normalized;
+    return normalizeAppointmentStatus(status);
   }
 
   private hasActiveStopwatch(appointment: Appointment): boolean {

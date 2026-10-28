@@ -13,7 +13,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { RegisterTechnicianRequest, TechnicianInterface } from '../../model/interfaces';
 import { AuthService } from '../../service/Auth/auth.service';
 import { TechnicianService } from '../technician/technician.service';
-import { Dashboard } from '../dashboard/dashboard';
+import { Sidebar } from '../sidebar/sidebar';
 
 type RegistrationMode = 'owner' | 'technician';
 
@@ -23,7 +23,7 @@ const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp
 
 @Component({
   selector: 'app-register-technician',
-  imports: [Dashboard, ReactiveFormsModule],
+  imports: [Sidebar, ReactiveFormsModule],
   templateUrl: './register-technician.html',
   styleUrl: './register-technician.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

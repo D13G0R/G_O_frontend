@@ -1,0 +1,14 @@
+:host {
+  display: block;
+}
+
+.sidebar-link-active,
+.sidebar-link-active:hover {
+  background-color: #8a4cfc;
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.sidebar-link-active .material-symbols-outlined {
+  font-variation-settings: 'FILL' 1;
+}

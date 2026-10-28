@@ -12,13 +12,17 @@ import { ToastMessage } from '../toast-message/toast-message';
 import { FormControl, FormGroup, ɵInternalFormsSharedModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { TokenService } from '../../service/token/token';
 import { Appointment, AppointmentCreate, AppointmentUpdateInterface } from '../../model/interfaces';
-import { Dashboard } from '../dashboard/dashboard';
+import {
+  appointmentStatusLabel,
+  normalizeAppointmentStatus,
+} from '../../model/appointment-status';
+import { Sidebar } from '../sidebar/sidebar';
 import { TechnicianService } from '../technician/technician.service';
 import { App } from '../../app';
 
 @Component({
   selector: 'app-appointments',
-  imports: [ToastMessage, ɵInternalFormsSharedModule, ReactiveFormsModule, Dashboard],
+  imports: [ToastMessage, ɵInternalFormsSharedModule, ReactiveFormsModule, Sidebar],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
@@ -105,7 +109,10 @@ export class Appointments implements OnInit {
       return currentData;
     }
   
-    return currentData.filter(appointment => appointment.status === currentStatusFilter);
+    return currentData.filter(
+      (appointment) =>
+        normalizeAppointmentStatus(appointment.status) === currentStatusFilter,
+    );
   })
   
   setFilteringByStatus(requiredStatusFilter: string){
@@ -131,12 +138,32 @@ export class Appointments implements OnInit {
     }).format(parsedDate);
   }
 
+  statusLabel(status: string): string {
+    return appointmentStatusLabel(status);
+  }
+
+  statusBadgeClass(status: string): string {
+    switch (normalizeAppointmentStatus(status)) {
+      case 'confirmed':
+        return 'bg-tertiary-container text-on-tertiary-container';
+      case 'in_progress':
+        return 'bg-secondary-container text-secondary';
+      case 'pending_payment':
+        return 'bg-amber-100 text-amber-700';
+      case 'payment_review':
+        return 'bg-primary-fixed text-primary';
+      case 'payment_rejected':
+      case 'cancelled':
+        return 'bg-error-container text-on-error-container';
+      case 'completed':
+        return 'bg-tertiary-container text-tertiary';
+      default:
+        return 'bg-primary-fixed text-primary';
+    }
+  }
+
   serviceDuration(appointment: Appointment): string {
-    if (
-      appointment.status?.trim().toLowerCase() !== 'completed' ||
-      !appointment.startTime ||
-      !appointment.endTime
-    ) {
+    if (!appointment.startTime || !appointment.endTime) {
       return '';
     }
 
@@ -303,9 +330,14 @@ export class Appointments implements OnInit {
   //---FILTERS---
 
   filters = [
-  { value: 'all', label: 'Todos', activeClass: 'bg-gray-900 text-white border-gray-900' },
-  { value: 'scheduled', label: 'Programadas', activeClass: 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100' },
-  { value: 'confirmed', label: 'Confirmadas', activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-100' },
-  { value: 'cancelled', label: 'Canceladas', activeClass: 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-100' }
-];
+    { value: 'all', label: 'Todos', activeClass: 'bg-gray-900 text-white border-gray-900' },
+    { value: 'scheduled', label: 'Programadas', activeClass: 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-100' },
+    { value: 'confirmed', label: 'Confirmadas', activeClass: 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-100' },
+    { value: 'in_progress', label: 'En curso', activeClass: 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-100' },
+    { value: 'pending_payment', label: 'Por cobrar', activeClass: 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-100' },
+    { value: 'payment_review', label: 'Pago en revisión', activeClass: 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100' },
+    { value: 'payment_rejected', label: 'Pago rechazado', activeClass: 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-100' },
+    { value: 'completed', label: 'Completadas', activeClass: 'bg-teal-600 text-white border-teal-600 shadow-md shadow-teal-100' },
+    { value: 'cancelled', label: 'Canceladas', activeClass: 'bg-rose-700 text-white border-rose-700 shadow-md shadow-rose-100' },
+  ];
 }
