@@ -7,13 +7,13 @@ import {
 } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { BusinessConfigurationUpdate } from '../../model/interfaces';
-import { Dashboard } from '../dashboard/dashboard';
+import { Sidebar } from '../sidebar/sidebar';
 import { BusinessConfigurationService } from './business-configuration.service';
 
 @Component({
   selector: 'app-business-configuration',
   standalone: true,
-  imports: [Dashboard, ReactiveFormsModule],
+  imports: [Sidebar, ReactiveFormsModule],
   templateUrl: './business-configuration.html',
   styleUrl: './business-configuration.css',
 })

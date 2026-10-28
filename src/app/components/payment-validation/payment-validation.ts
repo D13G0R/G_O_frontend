@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { PaymentEvent, PaymentReview } from '../../model/interfaces';
 import { PaymentService } from '../../service/payments/payment.service';
 import { PaymentRealtimeService } from '../../service/payments/payment-realtime.service';
-import { Dashboard } from '../dashboard/dashboard';
+import { Sidebar } from '../sidebar/sidebar';
 
 type PaymentFilter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
@@ -28,7 +28,7 @@ interface StatusPresentation {
 
 @Component({
   selector: 'app-payment-validation',
-  imports: [Dashboard],
+  imports: [Sidebar],
   templateUrl: './payment-validation.html',
   styleUrl: './payment-validation.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

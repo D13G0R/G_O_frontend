@@ -51,7 +51,7 @@ export class Login {
       next:(data) => {
         localStorage.setItem('token', data.token);
         this.router.navigate([
-          this.authService.isTechnician() ? '/technician-mobile' : '/appointments',
+          this.authService.isTechnician() ? '/technician-mobile' : '/dashboard',
         ]);
       },
       error:(error) => {

@@ -1,82 +1,284 @@
-  <nav
-    class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-white border-r border-[#c3c6d7] py-6 px-4 z-50">
+<main class="min-h-screen bg-surface text-on-surface">
+  <app-sidebar></app-sidebar>
 
-    <!-- Logo -->
-    <div class="mb-10 flex items-center gap-2">
-      <div class="w-10 h-10 bg-[#2563eb] rounded-lg flex items-center justify-center text-white">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
-          engineering
-        </span>
-      </div>
-
-      <div>
-        <h1 class="text-[20px] font-bold text-[#191c1e] leading-tight">
-          ProService SaaS
-        </h1>
-        <p class="text-[12px] font-medium text-[#434655]">
-          Enterprise Tier
-        </p>
-      </div>
+  <header
+    class="fixed top-0 right-0 left-64 h-16 bg-surface border-b border-outline-variant/60 flex items-center justify-between px-8 z-40"
+  >
+    <div class="flex items-center gap-1 text-[12px] font-medium text-on-surface-variant">
+      <span>Apps</span>
+      <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+      <span class="text-primary font-bold">Dashboard</span>
     </div>
 
-    <!-- Navigation -->
-    <div class="flex-1 space-y-1">
-
-      <a routerLink="/dashboard"
-        class="flex items-center gap-4 text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-4 py-2 transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">dashboard</span>
-        <span class="text-[14px] font-semibold">Dashboard</span>
-      </a>
-
-      <a routerLink="/appointments"
-        class="flex items-center gap-4 bg-[#8a4cfc] text-white rounded-lg px-4 py-2 translate-x-1">
-        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">
-          calendar_today
+    <div class="flex items-center gap-3">
+      @if (lastUpdated(); as updated) {
+        <span class="flex items-center gap-1.5 text-[12px] font-medium text-on-surface-variant">
+          <span class="relative flex h-2 w-2" title="Actualización automática activa" aria-hidden="true">
+            <span
+              class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60"
+              [class.animate-ping]="updatePulse()"
+            ></span>
+            <span class="relative inline-flex h-2 w-2 rounded-full bg-tertiary"></span>
+          </span>
+          <span class="hidden lg:inline">Actualizado {{ formatTime(updated) }}</span>
         </span>
-        <span class="text-[14px] font-semibold">Appointments</span>
-      </a>
+      }
 
-      <a routerLink="/technician-mobile"
-        class="flex items-center gap-4 text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-4 py-2 transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">assignment_ind</span>
-        <span class="text-[14px] font-semibold">Mis Citas</span>
-      </a>
-
-      <a routerLink="/payment-validation"
-        class="flex items-center gap-4 text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-4 py-2 transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">payments</span>
-        <span class="text-[14px] font-semibold">Validación de pagos</span>
-      </a>
-
-      <a routerLink="/register-technician"
-        class="flex items-center gap-4 text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-4 py-2 transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">person_add</span>
-        <span class="text-[14px] font-semibold">Registrar técnico</span>
-      </a>
-
-      <a routerLink="/business-configuration"
-        class="flex items-center gap-4 text-[#434655] hover:bg-[#e6e8ea] hover:text-[#712ae2] px-4 py-2 transition-colors duration-200 rounded-lg">
-        <span class="material-symbols-outlined">settings</span>
-        <span class="text-[14px] font-semibold">Settings</span>
-      </a>
-
-    </div>
-
-    <!-- Bottom navigation -->
-    <div class="border-t border-[#c3c6d7] pt-4 space-y-1">
-
-      <a href="#"
-        class="flex items-center gap-4 text-[#434655] hover:text-[#712ae2] px-4 py-2 transition-colors">
-        <span class="material-symbols-outlined">help</span>
-        <span class="text-[14px] font-semibold">Help Center</span>
-      </a>
-
-      <button type="button"
-        (click)="logout()"
-        class="w-full flex items-center gap-4 text-[#434655] hover:text-[#712ae2] px-4 py-2 transition-colors">
-        <span class="material-symbols-outlined">logout</span>
-        <span class="text-[14px] font-semibold">Log Out</span>
+      <button
+        type="button"
+        (click)="loadSummary()"
+        [disabled]="loading()"
+        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-outline-variant text-label-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
+      >
+        <span class="material-symbols-outlined text-[18px]" [class.animate-spin]="loading()">
+          refresh
+        </span>
+        Actualizar
       </button>
 
+      <div class="h-8 w-px bg-outline-variant/60 mx-1"></div>
+
+      <div class="flex items-center gap-2">
+        <div class="text-right hidden sm:block">
+          <p class="text-[14px] font-semibold text-on-surface">{{ userName }}</p>
+          <p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">
+            Owner
+          </p>
+        </div>
+
+        <div
+          class="w-10 h-10 rounded-full border-2 border-outline-variant/60 bg-primary-fixed flex items-center justify-center"
+        >
+          <span class="material-symbols-outlined text-primary">person</span>
+        </div>
+      </div>
     </div>
-  </nav>
+  </header>
+
+  <section class="ml-64 pt-24 px-8 pb-12" [attr.aria-busy]="loading()">
+    <div class="flex flex-col gap-1">
+      <p class="text-label-sm font-semibold text-primary uppercase tracking-wider">
+        {{ todayLabel }}
+      </p>
+      <h1 class="text-[32px] leading-tight font-semibold text-on-surface">
+        Hola, {{ userName }}
+      </h1>
+      <p class="text-body-md text-on-surface-variant max-w-2xl">
+        Este es el resumen operativo de tu negocio para hoy.
+      </p>
+    </div>
+
+    @if (loadError()) {
+      <div
+        class="mt-6 rounded-2xl border border-error/30 bg-error-container/40 px-4 py-3 flex items-start justify-between gap-3"
+      >
+        <p class="text-body-sm font-medium text-error">{{ loadError() }}</p>
+        <button
+          type="button"
+          (click)="loadSummary()"
+          class="text-label-sm font-bold text-error underline"
+        >
+          Reintentar
+        </button>
+      </div>
+    }
+
+    @if (loading() && !summary()) {
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div
+            class="h-32 rounded-2xl border border-outline-variant/60 bg-surface-container-lowest animate-pulse"
+          ></div>
+        }
+      </div>
+    } @else if (summary(); as data) {
+      @if (data.totalTechnicians === 0) {
+        <div
+          class="mt-6 rounded-2xl border border-primary/20 bg-primary-fixed/40 px-4 py-3 flex items-start gap-2.5"
+        >
+          <span class="material-symbols-outlined text-primary text-[20px]">info</span>
+          <div class="flex-1">
+            <p class="text-body-sm font-semibold text-on-surface">
+              Aún no tienes técnicos registrados.
+            </p>
+            <p class="text-body-sm text-on-surface-variant">
+              Registra el primero para empezar a operar con cronómetro y pagos.
+            </p>
+          </div>
+          <a
+            routerLink="/register-technician"
+            class="shrink-0 text-label-sm font-bold text-primary hover:underline"
+          >
+            Registrar
+          </a>
+        </div>
+      }
+
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <article
+          class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 shadow-sm"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Técnicos activos
+              </p>
+              <p class="text-[30px] leading-tight font-semibold text-on-surface mt-2">
+                {{ data.activeTechnicians }}
+                <span class="text-[16px] font-medium text-on-surface-variant">
+                  / {{ data.totalTechnicians }}
+                </span>
+              </p>
+            </div>
+            <span class="w-10 h-10 rounded-xl bg-primary-fixed/60 text-primary flex items-center justify-center">
+              <span class="material-symbols-outlined">groups</span>
+            </span>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-3">
+            {{ data.totalTechnicians - data.activeTechnicians }} inactivos
+          </p>
+        </article>
+
+        <article
+          class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 shadow-sm"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Ingresos de hoy
+              </p>
+              <p class="text-[26px] leading-tight font-semibold text-on-surface mt-2">
+                {{ formatCurrency(data.todayRevenue) }}
+              </p>
+            </div>
+            <span class="w-10 h-10 rounded-xl bg-tertiary-container/50 text-tertiary flex items-center justify-center">
+              <span class="material-symbols-outlined">payments</span>
+            </span>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-3">Pagos aprobados hoy</p>
+        </article>
+
+        <article
+          class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 shadow-sm"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Ingresos del mes
+              </p>
+              <p class="text-[26px] leading-tight font-semibold text-on-surface mt-2">
+                {{ formatCurrency(data.monthRevenue) }}
+              </p>
+            </div>
+            <span class="w-10 h-10 rounded-xl bg-primary-fixed/60 text-primary flex items-center justify-center">
+              <span class="material-symbols-outlined">trending_up</span>
+            </span>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-3">Mes calendario actual</p>
+        </article>
+
+        <article
+          class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 shadow-sm"
+        >
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                Citas de hoy
+              </p>
+              <p class="text-[30px] leading-tight font-semibold text-on-surface mt-2">
+                {{ data.totalTodayAppointments }}
+              </p>
+            </div>
+            <span class="w-10 h-10 rounded-xl bg-secondary-container/60 text-secondary flex items-center justify-center">
+              <span class="material-symbols-outlined">calendar_today</span>
+            </span>
+          </div>
+          <p class="text-[12px] text-on-surface-variant mt-3">
+            {{ data.todayInProgressAppointments }} en curso
+          </p>
+        </article>
+      </div>
+
+      <div class="mt-10">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <h2 class="text-[22px] leading-tight font-semibold text-on-surface">
+              Citas de hoy
+            </h2>
+            <p class="text-body-sm text-on-surface-variant mt-1">
+              Distribución por estado operativo.
+            </p>
+          </div>
+
+          <a
+            routerLink="/appointments"
+            class="text-label-sm font-bold text-primary hover:underline"
+          >
+            Ver todas
+          </a>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+          @for (card of statusCards(); track card.label) {
+            <article
+              class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-4 hover:shadow-md transition-shadow"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <p class="text-[11px] font-semibold uppercase tracking-wide text-on-surface-variant">
+                  {{ card.label }}
+                </p>
+                <span [class]="'w-8 h-8 rounded-lg flex items-center justify-center ' + card.tone">
+                  <span class="material-symbols-outlined text-[18px]">{{ card.icon }}</span>
+                </span>
+              </div>
+              <p class="text-[28px] leading-tight font-semibold text-on-surface mt-2">
+                {{ card.value }}
+              </p>
+            </article>
+          }
+        </div>
+      </div>
+
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <a
+          routerLink="/appointments"
+          class="group bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 hover:border-primary/40 hover:shadow-md transition-all"
+        >
+          <span class="w-10 h-10 rounded-xl bg-primary-fixed/60 text-primary flex items-center justify-center">
+            <span class="material-symbols-outlined">calendar_month</span>
+          </span>
+          <p class="text-[16px] font-semibold text-on-surface mt-3">Gestionar citas</p>
+          <p class="text-body-sm text-on-surface-variant mt-1">
+            Revisa la agenda, estados y tiempos del día.
+          </p>
+        </a>
+
+        <a
+          routerLink="/payment-validation"
+          class="group bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 hover:border-primary/40 hover:shadow-md transition-all"
+        >
+          <span class="w-10 h-10 rounded-xl bg-tertiary-container/50 text-tertiary flex items-center justify-center">
+            <span class="material-symbols-outlined">verified</span>
+          </span>
+          <p class="text-[16px] font-semibold text-on-surface mt-3">Validar pagos</p>
+          <p class="text-body-sm text-on-surface-variant mt-1">
+            Aprueba o rechaza los comprobantes pendientes.
+          </p>
+        </a>
+
+        <a
+          routerLink="/register-technician"
+          class="group bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-5 hover:border-primary/40 hover:shadow-md transition-all"
+        >
+          <span class="w-10 h-10 rounded-xl bg-secondary-container/60 text-secondary flex items-center justify-center">
+            <span class="material-symbols-outlined">person_add</span>
+          </span>
+          <p class="text-[16px] font-semibold text-on-surface mt-3">Registrar técnico</p>
+          <p class="text-body-sm text-on-surface-variant mt-1">
+            Suma a tu equipo y habilita el cronómetro.
+          </p>
+        </a>
+      </div>
+    }
+  </section>
+</main>

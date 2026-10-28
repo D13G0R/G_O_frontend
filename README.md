@@ -69,7 +69,8 @@ npx prettier --write "src/**/*.{ts,html,css,json,md}"
 |---|---|
 | `login` | Inicio de sesión y almacenamiento del JWT. |
 | `register` | Registro inicial de negocio y usuario propietario. |
-| `dashboard` | Navegación lateral y estructura compartida del panel. |
+| `sidebar` | Navegación lateral, ruta activa y logout del panel. |
+| `dashboard` | Métricas del negocio: técnicos, ingresos, citas de hoy y estados. |
 | `appointments` | Gestión de citas del negocio: listado, creación, edición, filtros y eliminación. |
 | `business-configuration` | Consulta y actualización de la configuración del negocio usada por n8n. |
 | `register-technician` | Creación de la cuenta de acceso de un técnico y vinculación al negocio. |
@@ -84,6 +85,7 @@ npx prettier --write "src/**/*.{ts,html,css,json,md}"
 |---|---|---|
 | `/login` | `Login` | Público |
 | `/register` | `Register` | Público |
+| `/dashboard` | `Dashboard` | Autenticado + propietario |
 | `/appointments` | `Appointments` | Autenticado + propietario |
 | `/business-configuration` | `BusinessConfiguration` | Autenticado + propietario |
 | `/payment-validation` | `PaymentValidation` | Autenticado + propietario |

@@ -163,3 +163,20 @@ export interface PaymentEvent {
     type: 'PAYMENT_SUBMITTED' | 'PAYMENT_REVIEWED';
     payment: PaymentReview;
 }
+
+export interface DashboardSummary {
+    totalTechnicians: number;
+    activeTechnicians: number;
+    todayRevenue: number;
+    monthRevenue: number;
+    todayScheduledAppointments: number;
+    todayConfirmedAppointments: number;
+    todayInProgressAppointments: number;
+    todayPendingPaymentAppointments: number;
+    todayPaymentReviewAppointments: number;
+    todayPaymentRejectedAppointments: number;
+    todayCompletedAppointments: number;
+    todayCancelledAppointments: number;
+    todayOtherAppointments: number;
+    totalTodayAppointments: number;
+}
