@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "G_O_frontend": {
+    "atencia-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "G_O_frontend:build:production"
+              "buildTarget": "atencia-frontend:build:production"
             },
             "development": {
-              "buildTarget": "G_O_frontend:build:development"
+              "buildTarget": "atencia-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"

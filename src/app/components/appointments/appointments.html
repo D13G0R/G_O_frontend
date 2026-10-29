@@ -5,104 +5,45 @@
 
   <!-- Top Bar -->
   <header
-    class="fixed top-0 right-0 left-64 h-16 bg-[#f7f9fb] border-b border-[#c3c6d7] flex justify-between items-center px-8 z-40">
+    class="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-[#f7f9fb] border-b border-[#c3c6d7] flex justify-between items-center pl-16 pr-4 lg:pl-8 lg:pr-8 z-40">
 
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-1 text-[#434655] text-[12px] font-medium">
-        <span>Apps</span>
+    <div class="flex items-center gap-4 min-w-0">
+      <div class="flex items-center gap-1 text-[#434655] text-[12px] font-medium min-w-0">
+        <span class="hidden sm:inline">Apps</span>
 
-        <span class="material-symbols-outlined text-[14px]">
-          chevron_right
+        <span class="hidden sm:inline-flex">
+          <span class="material-symbols-outlined text-[14px]">
+            chevron_right
+          </span>
         </span>
 
-        <span class="text-[#004ac6] font-bold">
+        <span class="text-[#004ac6] font-bold truncate">
           Appointments
         </span>
       </div>
     </div>
 
-    <div class="flex items-center gap-6">
-
-      <!-- Search -->
-      <div class="relative hidden lg:block">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#737686]">
-          search
-        </span>
-
-        <input type="text" placeholder="Search appointments..."
-          class="pl-10 pr-4 py-2 bg-[#eceef0] rounded-full border-none focus:ring-2 focus:ring-[#004ac6] w-64 text-[14px]" />
-      </div>
-
-      <!-- Notifications -->
-      <button type="button"
-        class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#e6e8ea] transition-colors text-[#434655]">
-        <span class="material-symbols-outlined">
-          notifications
-        </span>
-      </button>
-
-      <div class="h-8 w-px bg-[#c3c6d7] mx-2"></div>
-
-      <!-- User -->
-      <div class="flex items-center gap-2">
-        <div class="text-right hidden sm:block">
-          <p class="text-[14px] font-semibold text-[#191c1e]">
-            Alex Rivera
-          </p>
-
-          <p class="text-[12px] font-medium text-[#434655] uppercase tracking-wider">
-            Manager
-          </p>
-        </div>
-
-        <div class="w-10 h-10 rounded-full border-2 border-[#e0e3e5] bg-[#dbe1ff] flex items-center justify-center">
-          <span class="material-symbols-outlined text-[#004ac6]">
-            person
-          </span>
-        </div>
-      </div>
-
-    </div>
+    <button type="button" (click)="openModal()"
+      class="min-h-11 px-3 sm:px-4 rounded-xl bg-[#004ac6] text-white text-[14px] font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity shrink-0">
+      <span class="material-symbols-outlined text-[20px]">
+        add
+      </span>
+      <span class="hidden sm:inline">Nueva cita</span>
+    </button>
   </header>
 
   <!-- Main -->
-  <section class="ml-64 pt-24 px-8 pb-12">
+  <section class="lg:ml-64 pt-20 sm:pt-24 px-4 sm:px-6 lg:px-8 pb-12">
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+    <div class="mb-10">
+      <h2 class="text-[32px] font-semibold text-[#191c1e] mb-1">
+        Gestión de citas
+      </h2>
 
-      <div>
-        <h2 class="text-[32px] font-semibold text-[#191c1e] mb-1">
-          Manage Appointments
-        </h2>
-
-        <p class="text-[16px] text-[#434655] max-w-2xl">
-          View, coordinate, and schedule upcoming service visits across your
-          entire technician network.
-        </p>
-      </div>
-
-      <!-- View selector -->
-      <div class="flex items-center gap-4">
-        <div class="flex bg-[#f2f4f6] p-1 rounded-xl border border-[#c3c6d7]">
-          <button type="button"
-            class="px-4 py-1.5 bg-white shadow-sm rounded-lg text-[14px] text-[#004ac6] flex items-center gap-1">
-            <span class="material-symbols-outlined text-[18px]">
-              grid_view
-            </span>
-            Cards
-          </button>
-
-          <button type="button"
-            class="px-4 py-1.5 text-[14px] text-[#434655] flex items-center gap-1 hover:text-[#191c1e]">
-            <span class="material-symbols-outlined text-[18px]">
-              list
-            </span>
-            List
-          </button>
-        </div>
-      </div>
-
+      <p class="text-[16px] text-[#434655] max-w-2xl">
+        Consulta, coordina y agenda las visitas de servicio de tu equipo.
+      </p>
     </div>
 
     <!-- Filters -->
@@ -110,18 +51,33 @@
       class="bg-white rounded-2xl p-4 mb-10 flex flex-wrap items-center gap-6 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
 
       <!-- Date -->
-      <div class="flex flex-col gap-1">
+      <div class="flex flex-col gap-2">
         <label class="text-[12px] text-[#434655] px-1">
-          Selected Date
+          Fecha
         </label>
+
+        <div class="flex gap-2">
+          <button type="button" (click)="showToday()"
+            class="px-4 py-2 min-h-11 text-xs font-semibold rounded-xl border transition-all duration-200"
+            [class]="selectedDateFilter() === todayDate ? 'bg-[#004ac6] text-white border-[#004ac6]' : 'bg-white text-[#434655] border-[#c3c6d7] hover:bg-[#f2f4f6]'">
+            Hoy
+          </button>
+
+          <button type="button" (click)="showAllDates()"
+            class="px-4 py-2 min-h-11 text-xs font-semibold rounded-xl border transition-all duration-200"
+            [class]="!selectedDateFilter() ? 'bg-[#004ac6] text-white border-[#004ac6]' : 'bg-white text-[#434655] border-[#c3c6d7] hover:bg-[#f2f4f6]'">
+            Todas
+          </button>
+        </div>
 
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#004ac6]">
             calendar_month
           </span>
 
-          <input type="date"
-            class="pl-10 pr-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-48" />
+          <input type="date" [value]="selectedDateFilter()"
+            (change)="setDateFilter($any($event.target).value)"
+            class="pl-10 pr-4 py-2 min-h-11 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-48" />
         </div>
       </div>
 
@@ -131,12 +87,14 @@
           Technician
         </label>
 
-        <select
-          class="pl-4 pr-10 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-56">
-          <option>All Technicians</option>
-          <option>Marcus Aurelius</option>
-          <option>Sarah Jenkins</option>
-          <option>David Chen</option>
+        <select [value]="selectedTechnicianFilter()"
+          (change)="setTechnicianFilter($any($event.target).value)"
+          class="pl-4 pr-10 py-2 min-h-11 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] text-[14px] w-56">
+          <option value="all">Todos los técnicos</option>
+
+          @for (technician of technicians(); track technician.id) {
+            <option [value]="technician.id">{{ technician.fullName }}</option>
+          }
         </select>
       </div>
 
@@ -149,7 +107,7 @@
         <div class="flex flex-wrap gap-2 mb-6">
           @for (filter of filters; track filter.value) {
           <button type="button" (click)="setFilteringByStatus(filter.value)"
-            class="px-4 py-2 text-xs font-semibold rounded-xl border transition-all duration-200"
+            class="px-4 py-2 min-h-11 text-xs font-semibold rounded-xl border transition-all duration-200"
             [class]="selectedStatusFilter() === filter.value ? filter.activeClass : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:border-gray-300'">
             {{ filter.label }}
           </button>
@@ -158,12 +116,12 @@
       </div>
 
       <!-- Reset -->
-      <button type="button"
-        class="ml-auto text-[#004ac6] text-[14px] font-bold flex items-center gap-1 hover:underline">
+      <button type="button" (click)="resetFilters()"
+        class="ml-auto min-h-11 text-[#004ac6] text-[14px] font-bold flex items-center gap-1 hover:underline">
         <span class="material-symbols-outlined">
           filter_list
         </span>
-        Reset Filters
+        Limpiar filtros
       </button>
 
     </div>
@@ -171,16 +129,49 @@
     <!-- Appointment Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
+      <!-- Add Appointment -->
+      <button type="button" (click)="openModal()"
+        class="border-2 border-dashed border-[#c3c6d7] rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#004ac6] hover:bg-[#004ac6]/5 transition-all group min-h-55">
+
+        <div
+          class="w-12 h-12 rounded-full bg-[#eceef0] flex items-center justify-center text-[#c3c6d7] mb-4 group-hover:text-[#004ac6] group-hover:bg-[#004ac6]/10 transition-all">
+          <span class="material-symbols-outlined text-3xl">
+            add_circle
+          </span>
+        </div>
+
+        <h4 class="text-[20px] font-semibold text-[#434655] group-hover:text-[#004ac6]">
+          Agregar cita
+        </h4>
+
+        <p class="text-[14px] text-[#737686] px-4 mt-2">
+          Completa los datos para agendar una nueva cita.
+        </p>
+
+      </button>
+
       <!-- Card 1 -->
 
       @for(appointment of filteredAppointments(); track appointment.id){
 
       <div
-        class="bg-white rounded-2xl p-6 flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-[#e2e8f0]">
+        class="rounded-2xl p-6 flex flex-col hover:shadow-lg transition-shadow duration-300 group shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border"
+        [class]="isToday(appointment.appointmentDate) ? 'bg-amber-50 border-amber-300 ring-1 ring-amber-200' : 'bg-white border-[#e2e8f0]'">
 
         <div class="flex justify-between items-start mb-4">
-          <div class="bg-[#004ac6]/5 p-2 rounded-xl text-[#004ac6] text-[20px] font-semibold">
-            {{appointment.appointmentTime}}
+          <div class="p-2 rounded-xl"
+            [class]="isToday(appointment.appointmentDate) ? 'bg-amber-100 text-amber-900' : 'bg-[#004ac6]/5 text-[#004ac6]'">
+            <p class="text-[20px] font-semibold">
+              {{appointment.appointmentTime}}
+            </p>
+            <p class="text-[11px] font-medium">
+              {{ formatAppointmentDate(appointment.appointmentDate) }}
+            </p>
+            @if (isToday(appointment.appointmentDate)) {
+              <p class="mt-1 text-[10px] font-bold uppercase tracking-wide">
+                Hoy
+              </p>
+            }
           </div>
 
           <span
@@ -227,7 +218,7 @@
             </p>
 
             <p class="text-[14px] font-semibold text-[#191c1e]">
-              {{appointment.technicianId}}
+              {{ technicianName(appointment.technicianId) }}
             </p>
           </div>
 
@@ -235,7 +226,7 @@
 
             <!-- Editar -->
             <button type="button" (click)="openEditModal(appointment)"
-              class="w-8 h-8 rounded-lg flex items-center justify-center text-[#434655] hover:text-[#004ac6] hover:bg-[#004ac6]/5 transition-colors"
+              class="w-11 h-11 rounded-lg flex items-center justify-center text-[#434655] hover:text-[#004ac6] hover:bg-[#004ac6]/5 transition-colors"
               title="Editar Cita">
 
               <span class="material-symbols-outlined text-[18px]">
@@ -246,7 +237,7 @@
 
             <!-- Eliminar -->
             <button type="button" (click)="openDeleteModal(appointment)"
-              class="w-8 h-8 rounded-lg flex items-center justify-center text-[#737686] hover:text-red-600 hover:bg-red-50 transition-colors"
+              class="w-11 h-11 rounded-lg flex items-center justify-center text-[#737686] hover:text-red-600 hover:bg-red-50 transition-colors"
               title="Eliminar Cita">
 
               <span class="material-symbols-outlined text-[18px]">
@@ -259,28 +250,6 @@
         </div>
       </div>
       }
-
-
-      <!-- Add Appointment -->
-      <button type="button" (click)="openModal()"
-        class="border-2 border-dashed border-[#c3c6d7] rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#004ac6] hover:bg-[#004ac6]/5 transition-all group min-h-55">
-
-        <div
-          class="w-12 h-12 rounded-full bg-[#eceef0] flex items-center justify-center text-[#c3c6d7] mb-4 group-hover:text-[#004ac6] group-hover:bg-[#004ac6]/10 transition-all">
-          <span class="material-symbols-outlined text-3xl">
-            add_circle
-          </span>
-        </div>
-
-        <h4 class="text-[20px] font-semibold text-[#434655] group-hover:text-[#004ac6]">
-          Add New Appointment
-        </h4>
-
-        <p class="text-[14px] text-[#737686] px-4 mt-2">
-          Fill the schedule and maximize your team's efficiency.
-        </p>
-
-      </button>
 
     </div>
 
@@ -372,21 +341,20 @@
           </div>
 
           <!-- Date -->
-          <div class="space-y-2">
+          <div class="space-y-2 col-span-2 sm:col-span-1">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
-              Date
+              Fecha
             </label>
             <input type="date" formControlName="appointmentDate"
-              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+              class="w-full px-4 py-2 min-h-11 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
           </div>
 
           <!-- Time -->
-          <div class="space-y-2">
+          <div class="space-y-2 col-span-2 sm:col-span-1">
             <label class="text-[14px] font-semibold text-[#191c1e] block">
-              Time
+              Hora
             </label>
-            <input type="time" formControlName="appointmentTime" step="1"
-              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[16px]" />
+            <app-time-picker formControlName="appointmentTime"></app-time-picker>
           </div>
 
           <!-- Status -->
@@ -569,8 +537,7 @@
               Hora
             </label>
 
-            <input type="time" formControlName="appointmentTime"
-              class="w-full px-4 py-2 border border-[#c3c6d7] rounded-xl focus:ring-2 focus:ring-[#004ac6] outline-none text-[14px]">
+            <app-time-picker formControlName="appointmentTime"></app-time-picker>
 
           </div>
 

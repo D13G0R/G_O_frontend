@@ -1,0 +1,63 @@
+<div class="flex flex-wrap items-center gap-2">
+  <div class="flex items-center gap-1">
+    <label class="sr-only" for="time-picker-hour">Hora</label>
+    <select
+      id="time-picker-hour"
+      [value]="selectedHour ?? ''"
+      (change)="onHourChange($any($event.target).value)"
+      (blur)="onBlur()"
+      [disabled]="disabled"
+      class="w-20 min-h-11 px-3 border border-[#c3c6d7] rounded-xl bg-white text-[14px] text-[#191c1e] focus:ring-2 focus:ring-[#004ac6] outline-none disabled:bg-[#f2f4f6] disabled:text-[#737686]"
+    >
+      <option value="" disabled>Hora</option>
+      @for (hour of hours; track hour) {
+        <option [value]="hour">{{ formatNumber(hour) }}</option>
+      }
+    </select>
+
+    <span class="text-[18px] font-semibold text-[#434655]">:</span>
+
+    <label class="sr-only" for="time-picker-minute">Minutos</label>
+    <select
+      id="time-picker-minute"
+      [value]="selectedMinute ?? ''"
+      (change)="onMinuteChange($any($event.target).value)"
+      (blur)="onBlur()"
+      [disabled]="disabled"
+      class="w-20 min-h-11 px-3 border border-[#c3c6d7] rounded-xl bg-white text-[14px] text-[#191c1e] focus:ring-2 focus:ring-[#004ac6] outline-none disabled:bg-[#f2f4f6] disabled:text-[#737686]"
+    >
+      <option value="" disabled>Min</option>
+      @for (minute of minuteOptions; track minute) {
+        <option [value]="minute">{{ formatNumber(minute) }}</option>
+      }
+    </select>
+  </div>
+
+  <div
+    class="inline-flex overflow-hidden rounded-xl border border-[#c3c6d7]"
+    role="group"
+    aria-label="AM o PM"
+  >
+    <button
+      type="button"
+      (click)="setPeriod('AM')"
+      (blur)="onBlur()"
+      [disabled]="disabled"
+      class="min-h-11 px-3 text-[13px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+      [class]="period === 'AM' ? 'bg-[#004ac6] text-white' : 'bg-white text-[#434655] hover:bg-[#f2f4f6]'"
+    >
+      AM
+    </button>
+
+    <button
+      type="button"
+      (click)="setPeriod('PM')"
+      (blur)="onBlur()"
+      [disabled]="disabled"
+      class="min-h-11 px-3 text-[13px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+      [class]="period === 'PM' ? 'bg-[#004ac6] text-white' : 'bg-white text-[#434655] hover:bg-[#f2f4f6]'"
+    >
+      PM
+    </button>
+  </div>
+</div>

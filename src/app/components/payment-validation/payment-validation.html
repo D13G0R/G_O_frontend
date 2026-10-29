@@ -10,25 +10,28 @@
     </div>
   }
 
-  <header class="fixed top-0 right-0 left-64 h-16 bg-surface border-b border-outline-variant/60 flex items-center justify-between px-8 z-40">
-    <div class="flex items-center gap-1 text-[12px] font-medium text-on-surface-variant">
-      <span>Apps</span>
-      <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-      <span class="text-primary font-bold">Validación de pagos</span>
+  <header class="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-surface border-b border-outline-variant/60 flex items-center justify-between pl-16 pr-4 lg:pl-8 lg:pr-8 z-40">
+    <div class="flex items-center gap-1 text-[12px] font-medium text-on-surface-variant min-w-0">
+      <span class="hidden sm:inline">Apps</span>
+      <span class="hidden sm:inline-flex">
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+      </span>
+      <span class="text-primary font-bold truncate">Validación de pagos</span>
     </div>
 
     <button
       type="button"
       (click)="loadPayments()"
-      class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-outline-variant text-label-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors"
+      class="flex items-center justify-center gap-1.5 min-w-11 min-h-11 px-2.5 sm:px-3 py-2 rounded-xl border border-outline-variant text-label-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors"
+      aria-label="Actualizar pagos"
     >
       <span class="material-symbols-outlined text-[18px]" [class.animate-spin]="loading()">refresh</span>
-      Actualizar
+      <span class="hidden sm:inline">Actualizar</span>
     </button>
   </header>
 
-  <div class="pl-64 pt-16">
-    <div class="px-8 py-8">
+  <div class="lg:pl-64 pt-16">
+    <div class="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <div class="flex flex-col gap-1">
         <h1 class="text-[28px] leading-tight font-semibold text-on-surface">Validación de pagos</h1>
         <p class="text-body-sm text-on-surface-variant">
