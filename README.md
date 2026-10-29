@@ -1,4 +1,4 @@
-# AtencIA Frontend — G_O_frontend
+# AtencIA Frontend
 
 Aplicación web SPA para la operación de AtencIA. Ofrece una interfaz diferenciada para propietarios de negocio y técnicos: gestión de citas, registro de técnicos, configuración del negocio, reporte de pagos con comprobantes y validación de pagos por parte del propietario.
 

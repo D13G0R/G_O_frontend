@@ -13,6 +13,8 @@ import { AuthService } from '../../service/Auth/auth.service';
 import { Sidebar } from '../sidebar/sidebar';
 import { DashboardService } from './dashboard.service';
 
+import { SidebarService } from '../../service/sidebar/sidebar.service';
+
 interface AppointmentStatusCard {
   readonly label: string;
   readonly value: number;
@@ -32,12 +34,19 @@ const AUTO_REFRESH_INTERVAL_MS = 30_000;
 export class Dashboard implements OnInit, OnDestroy {
   private readonly dashboardService = inject(DashboardService);
   private readonly authService = inject(AuthService);
+  private readonly sidebarService = inject(SidebarService);
 
   private refreshTimerId: number | null = null;
 
   private updatePulseTimerId: number | null = null;
 
   readonly updatePulse = signal(false);
+
+  readonly isSidebarOpen = this.sidebarService.isOpen;
+
+  toggleSidebar(): void {
+    this.sidebarService.toggleSidebar();
+  }
 
   private readonly refreshWhenVisible = (): void => {
     if (document.visibilityState === 'visible') {

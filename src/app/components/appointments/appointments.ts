@@ -7,22 +7,20 @@ import {
   inject,
 } from '@angular/core';
 import { AppointmentsService } from './appointments.service';
-import { AuthService } from '../../service/Auth/auth.service';
 import { ToastMessage } from '../toast-message/toast-message';
-import { FormControl, FormGroup, ɵInternalFormsSharedModule, ReactiveFormsModule, FormBuilder } from '@angular/forms';
-import { TokenService } from '../../service/token/token';
+import { FormGroup, ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { Appointment, AppointmentCreate, AppointmentUpdateInterface } from '../../model/interfaces';
 import {
   appointmentStatusLabel,
   normalizeAppointmentStatus,
 } from '../../model/appointment-status';
 import { Sidebar } from '../sidebar/sidebar';
+import { TimePicker } from '../time-picker/time-picker';
 import { TechnicianService } from '../technician/technician.service';
-import { App } from '../../app';
 
 @Component({
   selector: 'app-appointments',
-  imports: [ToastMessage, ɵInternalFormsSharedModule, ReactiveFormsModule, Sidebar],
+  imports: [ToastMessage, ReactiveFormsModule, Sidebar, TimePicker],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
@@ -43,8 +41,6 @@ export class Appointments implements OnInit {
   
   constructor(
     public appointmentsService: AppointmentsService,
-    private authService: AuthService,
-    private tokenService: TokenService,
     private fb: FormBuilder,
     private changeDetectorRef: ChangeDetectorRef,
   ) {
@@ -99,24 +95,107 @@ export class Appointments implements OnInit {
   };
   
   selectedStatusFilter = signal<string>("all");
-  
+  selectedDateFilter = signal<string>(this.todayBogotaDate());
+  selectedTechnicianFilter = signal<string>("all");
+  readonly todayDate = this.todayBogotaDate();
+
   filteredAppointments = computed(() => {
-    
     const currentData = this.appointmentsService.appointments();
     const currentStatusFilter = this.selectedStatusFilter();
-    
-    if ( currentStatusFilter === "all") {
-      return currentData;
-    }
-  
-    return currentData.filter(
-      (appointment) =>
-        normalizeAppointmentStatus(appointment.status) === currentStatusFilter,
-    );
-  })
-  
-  setFilteringByStatus(requiredStatusFilter: string){
+    const currentDateFilter = this.selectedDateFilter();
+    const currentTechnicianFilter = this.selectedTechnicianFilter();
+
+    const filtered = currentData.filter((appointment) => {
+      const matchesDate =
+        !currentDateFilter || appointment.appointmentDate === currentDateFilter;
+      const matchesStatus =
+        currentStatusFilter === "all" ||
+        normalizeAppointmentStatus(appointment.status) === currentStatusFilter;
+      const matchesTechnician =
+        currentTechnicianFilter === "all" ||
+        String(appointment.technicianId) === currentTechnicianFilter;
+
+      return matchesDate && matchesStatus && matchesTechnician;
+    });
+
+    return filtered.sort((left, right) => {
+      const leftKey = `${left.appointmentDate}T${left.appointmentTime ?? ''}`;
+      const rightKey = `${right.appointmentDate}T${right.appointmentTime ?? ''}`;
+
+      return currentDateFilter
+        ? leftKey.localeCompare(rightKey)
+        : rightKey.localeCompare(leftKey);
+    });
+  });
+
+  setFilteringByStatus(requiredStatusFilter: string) {
     this.selectedStatusFilter.set(requiredStatusFilter);
+  }
+
+  setDateFilter(date: string) {
+    this.selectedDateFilter.set(date);
+  }
+
+  showToday() {
+    this.selectedDateFilter.set(this.todayDate);
+  }
+
+  showAllDates() {
+    this.selectedDateFilter.set('');
+  }
+
+  setTechnicianFilter(technicianId: string) {
+    this.selectedTechnicianFilter.set(technicianId);
+  }
+
+  resetFilters() {
+    this.selectedStatusFilter.set('all');
+    this.selectedDateFilter.set(this.todayDate);
+    this.selectedTechnicianFilter.set('all');
+  }
+
+  isToday(date: string | null | undefined): boolean {
+    return date === this.todayDate;
+  }
+
+  technicianName(technicianId: number | null | undefined): string {
+    const technician = this.technicians().find(
+      (item) => item.id === Number(technicianId),
+    );
+
+    return technician?.fullName ?? 'Sin asignar';
+  }
+
+  formatAppointmentDate(value: string | null | undefined): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(`${value}T12:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).format(date);
+  }
+
+  private todayBogotaDate(): string {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date());
+
+    const valueOf = (type: string) =>
+      parts.find((part) => part.type === type)?.value ?? '';
+
+    return `${valueOf('year')}-${valueOf('month')}-${valueOf('day')}`;
   }
 
   formatBogotaTime(value: string | null | undefined): string {
@@ -156,7 +235,7 @@ export class Appointments implements OnInit {
       case 'cancelled':
         return 'bg-error-container text-on-error-container';
       case 'completed':
-        return 'bg-tertiary-container text-tertiary';
+        return 'bg-slate-200 text-slate-700';
       default:
         return 'bg-primary-fixed text-primary';
     }
@@ -185,7 +264,7 @@ export class Appointments implements OnInit {
     return `${minutes} min`;
   }
 
-
+//<--- Creacion de citas ---> //
   createAppointment() {
     
     const payload: AppointmentCreate = {
@@ -211,7 +290,7 @@ export class Appointments implements OnInit {
           createdAppointment
         ])
 
-        alert("Cita creada exitosamente" + createdAppointment.id);
+        alert("Cita creada exitosamente, el id de la cita es: " + createdAppointment.id);
         
         this.closeModal();
         this.appointmentGroup.reset()

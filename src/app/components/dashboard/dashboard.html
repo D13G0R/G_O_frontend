@@ -2,17 +2,19 @@
   <app-sidebar></app-sidebar>
 
   <header
-    class="fixed top-0 right-0 left-64 h-16 bg-surface border-b border-outline-variant/60 flex items-center justify-between px-8 z-40"
+    class="fixed top-0 right-0 left-0 lg:left-64 h-16 bg-surface border-b border-outline-variant/60 flex items-center justify-between pl-16 pr-4 lg:pl-8 lg:pr-8 z-40 transition-[margin-left] duration-300 ease-in-out"
   >
-    <div class="flex items-center gap-1 text-[12px] font-medium text-on-surface-variant">
-      <span>Apps</span>
-      <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-      <span class="text-primary font-bold">Dashboard</span>
+    <div class="flex items-center gap-1 min-w-0 text-[12px] font-medium text-on-surface-variant">
+      <span class="hidden sm:inline">Apps</span>
+      <span class="hidden sm:inline-flex">
+        <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+      </span>
+      <span class="text-primary font-bold truncate">Dashboard</span>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
       @if (lastUpdated(); as updated) {
-        <span class="flex items-center gap-1.5 text-[12px] font-medium text-on-surface-variant">
+        <span class="hidden sm:flex items-center gap-1.5 text-[12px] font-medium text-on-surface-variant">
           <span class="relative flex h-2 w-2" title="Actualización automática activa" aria-hidden="true">
             <span
               class="absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-60"
@@ -28,18 +30,19 @@
         type="button"
         (click)="loadSummary()"
         [disabled]="loading()"
-        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-outline-variant text-label-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
+        class="flex items-center justify-center gap-1.5 min-w-11 min-h-11 px-2.5 sm:px-3 py-2 rounded-xl border border-outline-variant text-label-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-60"
+        aria-label="Actualizar métricas"
       >
         <span class="material-symbols-outlined text-[18px]" [class.animate-spin]="loading()">
           refresh
         </span>
-        Actualizar
+        <span class="hidden sm:inline">Actualizar</span>
       </button>
 
-      <div class="h-8 w-px bg-outline-variant/60 mx-1"></div>
+      <div class="hidden sm:block h-8 w-px bg-outline-variant/60 mx-1"></div>
 
       <div class="flex items-center gap-2">
-        <div class="text-right hidden sm:block">
+        <div class="text-right hidden lg:block">
           <p class="text-[14px] font-semibold text-on-surface">{{ userName }}</p>
           <p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-wider">
             Owner
@@ -47,7 +50,7 @@
         </div>
 
         <div
-          class="w-10 h-10 rounded-full border-2 border-outline-variant/60 bg-primary-fixed flex items-center justify-center"
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-outline-variant/60 bg-primary-fixed flex items-center justify-center shrink-0"
         >
           <span class="material-symbols-outlined text-primary">person</span>
         </div>
@@ -55,12 +58,15 @@
     </div>
   </header>
 
-  <section class="ml-64 pt-24 px-8 pb-12" [attr.aria-busy]="loading()">
+  <section
+    class="pt-20 sm:pt-24 px-4 sm:px-6 lg:ml-64 lg:px-8 pb-12 transition-[margin-left] duration-300 ease-in-out"
+    [attr.aria-busy]="loading()"
+  >
     <div class="flex flex-col gap-1">
       <p class="text-label-sm font-semibold text-primary uppercase tracking-wider">
         {{ todayLabel }}
       </p>
-      <h1 class="text-[32px] leading-tight font-semibold text-on-surface">
+      <h1 class="text-[28px] sm:text-[32px] leading-tight font-semibold text-on-surface">
         Hola, {{ userName }}
       </h1>
       <p class="text-body-md text-on-surface-variant max-w-2xl">
@@ -218,7 +224,7 @@
           </a>
         </div>
 
-        <div class="mt-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
           @for (card of statusCards(); track card.label) {
             <article
               class="bg-surface-container-lowest rounded-2xl border border-outline-variant/60 p-4 hover:shadow-md transition-shadow"
